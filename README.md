@@ -1,3 +1,6 @@
+## Equipe composta por: Vitor Leonardo, Nicolas Matheus e João Pedro Arruda
+
+
 # Multiplayer Soccer
 
 Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express** e **Socket.IO**.  
