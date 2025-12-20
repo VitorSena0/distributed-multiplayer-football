@@ -1,1 +1,29 @@
+# Dependências Node
 node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml # se não estiver usando
+
+# Logs
+logs
+*.log
+logs/*.log
+
+# Ambiente/variáveis
+.env
+.env.local
+.env.*.local
+ngrok.yml  # se contiver token/chave sensível
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+
+# TypeScript
+dist/
+public/dist/
+*.tsbuildinfo
+
