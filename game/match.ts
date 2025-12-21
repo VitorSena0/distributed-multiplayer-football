@@ -64,8 +64,47 @@ export function checkRestartConditions(room: Room, io: SocketIOServer): void {
     const hasRedPlayers = room.teams.red.length > 0;
     const hasBluePlayers = room.teams.blue.length > 0;
 
+    // Todos os jogadores atualmente na sala
+    const allPlayerIds: string[] = [
+        ...room.teams.red,
+        ...room.teams.blue,
+    ];
+
+    const allPlayerIdsSet = new Set<string>(allPlayerIds);
+
+    // Limpa playersReady removendo jogadores que saíram da sala
+    room.playersReady.forEach((playerId) => {
+        if (!allPlayerIdsSet.has(playerId)) {
+            room.playersReady.delete(playerId);
+        }
+    });
+
     if (hasRedPlayers && hasBluePlayers) {
-        if (!room.isPlaying && !room.waitingForRestart) {
+        // Caso esteja aguardando restart, decide se reinicia ou começa do zero
+        if (room.waitingForRestart) {
+            // Se algum jogador atual não está marcado como ready,
+            // significa que entrou alguém novo durante o restart
+            const hasNewPlayers = allPlayerIds.some(
+                (id) => !room.playersReady.has(id)
+            );
+
+            if (hasNewPlayers) {
+                // Jogador novo entrou → partida nova
+                startNewMatch(room, io);
+            } else {
+                // Todos são do jogo anterior e estão prontos
+                const allReady =
+                    allPlayerIds.length > 0 &&
+                    allPlayerIds.every((id) =>
+                        room.playersReady.has(id)
+                    );
+
+                if (allReady) {
+                    startNewMatch(room, io);
+                }
+            }
+        } else if (!room.isPlaying) {
+            // Não está jogando nem aguardando restart → inicia partida
             startNewMatch(room, io);
         }
     } else {
