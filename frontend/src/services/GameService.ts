@@ -84,8 +84,13 @@ export class GameService {
     this.setupInputListeners();
     
     // Initialize STOMP client
+    // Use relative URL for WebSocket connection to work in both dev and production
+    const wsUrl = window.location.protocol === 'https:' 
+      ? `https://${window.location.host}/ws`
+      : `http://${window.location.host}/ws`;
+    
     this.client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(wsUrl),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
