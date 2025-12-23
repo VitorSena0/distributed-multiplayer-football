@@ -12,11 +12,12 @@ RUN npm install
 
 # Copia o código TypeScript e arquivos de configuração
 COPY tsconfig*.json ./
+COPY vite.config.ts ./
 COPY game-server.ts ./
 COPY game ./game
-COPY public ./public
+COPY src ./src
 
-# Compila o TypeScript
+# Compila o servidor TypeScript e o frontend React
 RUN npm run build
 
 # Remove devDependencies após o build para reduzir tamanho da imagem

@@ -1,9 +1,22 @@
-# Multiplayer Soccer
+# Multiplayer Soccer - Professional Edition
 
-Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO** e **TypeScript**.  
+Jogo de futebol **multiplayer 2D em tempo real** construído com **React**, **Node.js**, **Express**, **Socket.IO** e **TypeScript**.  
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
 
-> **📝 Nota sobre TypeScript**: Este projeto foi completamente refatorado de JavaScript para TypeScript para melhorar a manutenibilidade do código e proporcionar uma melhor experiência de desenvolvimento com tipagem estática. Todos os arquivos `.js` foram convertidos para `.ts` com tipos bem definidos para variáveis, funções e estruturas de dados.
+> **✨ Nova Interface**: O jogo agora conta com uma interface moderna e profissional construída com React, apresentando design responsivo, gradientes elegantes, animações suaves e uma experiência de usuário aprimorada.
+
+> **📝 Nota sobre TypeScript**: Este projeto utiliza TypeScript em todo o stack (frontend e backend) para melhorar a manutenibilidade do código e proporcionar uma melhor experiência de desenvolvimento com tipagem estática.
+
+---
+
+## Demonstração Visual
+
+### Interface Moderna e Profissional
+![Multiplayer Soccer - Loading Screen](https://github.com/user-attachments/assets/b612a349-02f7-4853-9feb-3361e62cc3ad)
+*Tela de carregamento com design moderno e gradientes elegantes*
+
+![Multiplayer Soccer - Gameplay](https://github.com/user-attachments/assets/f0c07c1e-f57f-4bd5-9d7e-59d496da6bc4)
+*Jogo em ação com 2 jogadores conectados*
 
 ---
 
@@ -63,7 +76,9 @@ Para testar localmente, veja a seção [Instalação e Execução Local](#instal
 
 ## Arquitetura
 
-- **Node.js + Express**: servidor HTTP responsável por expor uma API mínima e servir os arquivos estáticos do cliente (pasta `public/`).
+- **Node.js + Express**: servidor HTTP responsável por expor uma API mínima e servir os arquivos estáticos do cliente React.
+- **React + TypeScript**: interface moderna e componentizada com hooks personalizados para gerenciar estado e comunicação Socket.IO.
+- **Vite**: ferramenta de build rápida e moderna para o frontend React.
 - **Socket.IO**: canal de comunicação em tempo real entre cliente e servidor, usado para:
 	- Enviar inputs do jogador para o servidor.
 	- Receber o estado atualizado do jogo (posição de jogadores, bola, placar, timer).
@@ -73,6 +88,13 @@ Para testar localmente, veja a seção [Instalação e Execução Local](#instal
 - **Timer de partida**:
 	- Atualizado a cada 1 segundo.
 	- Emite eventos de início, atualização de cronômetro e fim de partida.
+
+### Design Moderno
+- **Gradientes e Sombras**: Interface com gradientes elegantes e sombras profissionais
+- **Animações Suaves**: Transições e animações CSS para melhor UX
+- **Tipografia Aprimorada**: Uso da fonte Inter para melhor legibilidade
+- **Componentes Reutilizáveis**: Arquitetura React com componentes modulares
+- **Responsivo**: Adaptado para desktop e dispositivos móveis
 
 ---
 
@@ -91,13 +113,19 @@ Para testar localmente, veja a seção [Instalação e Execução Local](#instal
 ## Tecnologias Utilizadas
 
 - **Linguagem**: TypeScript (compilado para JavaScript)
+- **Frontend**:
+	- React 19
+	- TypeScript
+	- Vite (build tool)
+	- Socket.IO Client
+	- HTML5 Canvas
+	- CSS3 (com variáveis CSS e animações)
+	- Google Fonts (Inter)
 - **Servidor**:
 	- Node.js 18+
-	- Express
+	- Express 5
 	- Socket.IO
 	- TypeScript
-- **Cliente**:
-	- HTML5
 	- CSS3
 	- TypeScript (compilado para JavaScript)
 	- Canvas / DOM
@@ -219,19 +247,40 @@ A lógica de partida está em `game/match.ts`:
 
 ## Front-end (cliente)
 
-Os arquivos do cliente estão em `public/`:
+O frontend foi completamente reconstruído com React para proporcionar uma experiência moderna e profissional:
 
-- `public/index.html` — página principal do jogo.
-- `public/style.css` — estilos do campo, HUD, botões, etc.
-- `public/game.ts` — lógica do cliente em TypeScript (compilada para `public/dist/game.js`):
-	- Conecta ao Socket.IO do servidor.
-	- Envia inputs (teclas pressionadas) para o servidor.
-	- Renderiza o campo, jogadores, bola, placar e cronômetro.
-	- Trata eventos como:
-		- Snapshot de estado do jogo.
-		- Atualizações de timer.
-		- Mensagens de sala cheia, início/fim de partida, etc.
-	- Utiliza tipagem forte para garantir segurança de tipos nas interfaces de comunicação.
+### Estrutura React
+
+- `src/` — código-fonte do frontend React
+  - `components/` — componentes React
+    - `Game.tsx` — componente principal que orquestra o jogo
+    - `GameCanvas.tsx` — renderização do campo usando Canvas com gradientes e sombras
+    - `GameUI.tsx` — overlay de UI (sala, aguardando jogadores, vencedor)
+    - `HUD.tsx` — HUD inferior com ping, cronômetro e placar
+    - `PlayerIDs.tsx` — labels de ID dos jogadores
+    - `MobileControls.tsx` — controles touch para dispositivos móveis
+  - `hooks/` — hooks personalizados
+    - `useSocket.ts` — gerenciamento da conexão Socket.IO e estado do jogo
+  - `types/` — definições de tipos TypeScript
+  - `config/` — configurações do jogo
+  - `styles/` — estilos CSS modernos com variáveis CSS
+  - `index.html` — página HTML principal
+  - `main.tsx` — ponto de entrada do React
+
+### Build
+- O frontend é compilado com **Vite** para `public/dist/`
+- A build gera assets otimizados com hash para cache-busting
+- O servidor Express serve os arquivos estáticos da pasta `public/dist/`
+
+### Funcionalidades da Interface
+- **Design Responsivo**: Adapta-se a diferentes tamanhos de tela
+- **Loading Screen**: Tela de carregamento animada
+- **HUD Moderno**: Informações do jogo com design limpo e profissional
+- **Animações Suaves**: Transições e animações CSS
+- **Controles Mobile**: Joystick virtual para dispositivos touch
+- **Campo Aprimorado**: Renderização com gradientes, sombras e texturas
+- **Player Highlighting**: Destaque visual do jogador atual
+- **Ping Display**: Indicador de latência com cores baseadas na qualidade
 
 ---
 
@@ -243,7 +292,7 @@ Responsabilidades principais:
 
 - Criar o servidor HTTP (`http.createServer(app)`).
 - Plugar o Socket.IO (`const io = new SocketIOServer(server, { ... })`).
-- Servir arquivos estáticos da pasta `public/` via Express.
+- Servir arquivos estáticos da pasta `public/dist/` via Express (build do React).
 - Registrar os handlers de Socket.IO (`game/socketHandlers.ts`).
 - Executar o game loop e o timer:
 
@@ -291,18 +340,38 @@ Multiplayer-Soccer/
 │  ├─ gameLoop.ts
 │  └─ socketHandlers.ts
 │
-├─ dist/                  # Código JavaScript compilado do servidor
+├─ dist/                     # Código JavaScript compilado do servidor
 │  ├─ game-server.js
 │  └─ game/
 │
-├─ public/                # Lado cliente (front-end)
-│  ├─ index.html
-│  ├─ style.css
-│  ├─ game.ts            # Código TypeScript do cliente
-│  └─ dist/              # Código JavaScript compilado do cliente
-│     └─ game.js
+├─ src/                      # Código-fonte do frontend React
+│  ├─ components/            # Componentes React
+│  │  ├─ Game.tsx
+│  │  ├─ GameCanvas.tsx
+│  │  ├─ GameUI.tsx
+│  │  ├─ HUD.tsx
+│  │  ├─ MobileControls.tsx
+│  │  └─ PlayerIDs.tsx
+│  ├─ hooks/                 # Hooks personalizados
+│  │  └─ useSocket.ts
+│  ├─ types/                 # Tipos TypeScript
+│  │  └─ game.ts
+│  ├─ config/                # Configurações
+│  │  └─ gameConfig.ts
+│  ├─ styles/                # Estilos CSS
+│  │  └─ game.css
+│  ├─ App.tsx                # Componente principal
+│  ├─ main.tsx               # Ponto de entrada React
+│  └─ index.html             # HTML base
 │
-├─ nginx/                 # Configuração Nginx para proxy reverso
+├─ public/                   # Arquivos servidos pelo servidor
+│  └─ dist/                  # Build do React (gerado pelo Vite)
+│     ├─ index.html
+│     └─ assets/
+│        ├─ main-*.js
+│        └─ main-*.css
+│
+├─ nginx/                    # Configuração Nginx para proxy reverso
 │  ├─ default.conf
 │  └─ Dockerfile
 ```
