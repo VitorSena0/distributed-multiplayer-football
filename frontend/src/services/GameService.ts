@@ -49,8 +49,6 @@ interface GameCallbacks {
   onMatchStart: () => void;
 }
 
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 600;
 const PLAYER_RADIUS = 20;
 const BALL_RADIUS = 10;
 const GOAL_WIDTH = 50;
@@ -65,14 +63,11 @@ export class GameService {
   private gameState: GameState;
   private currentTeam: 'red' | 'blue' | 'spectator' = 'spectator';
   private inputs: PlayerInput = { left: false, right: false, up: false, down: false };
-  private sessionId: string = '';
-  private requestedRoomId: string;
 
-  constructor(canvas: HTMLCanvasElement, callbacks: GameCallbacks, requestedRoomId: string = '') {
+  constructor(canvas: HTMLCanvasElement, callbacks: GameCallbacks, _requestedRoomId: string = '') {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.callbacks = callbacks;
-    this.requestedRoomId = requestedRoomId;
     
     // Initialize game state
     this.gameState = {
@@ -302,7 +297,7 @@ export class GameService {
     ctx.fillRect(canvas.width - GOAL_WIDTH, canvas.height / 2 - GOAL_HEIGHT / 2, GOAL_WIDTH, GOAL_HEIGHT);
 
     // Draw players
-    Object.entries(this.gameState.players).forEach(([id, player]) => {
+    Object.entries(this.gameState.players).forEach(([_id, player]) => {
       ctx.fillStyle = player.team;
       ctx.beginPath();
       ctx.arc(player.x, player.y, PLAYER_RADIUS, 0, Math.PI * 2);

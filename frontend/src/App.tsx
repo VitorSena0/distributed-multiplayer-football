@@ -5,11 +5,6 @@ import './Game.css';
 // Game configuration constants
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const PLAYER_RADIUS = 20;
-const BALL_RADIUS = 10;
-const GOAL_WIDTH = 50;
-const GOAL_HEIGHT = 200;
-const CORNER_SIZE = 80;
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
