@@ -27,3 +27,20 @@ dist/
 public/dist/
 *.tsbuildinfo
 
+# Maven/Java
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+*.class
+*.jar
+*.war
+*.ear
+.settings/
+.project
+.classpath
+
+# React/Node frontend
+frontend/node_modules/
+frontend/build/
+frontend/dist/

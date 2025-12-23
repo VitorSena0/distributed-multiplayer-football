@@ -1,14 +1,51 @@
-services:
-  app:
-    image: multiplayer-soccer-app:latest
-    container_name: multiplayer-soccer-app
-    expose:
-      - "3000"
+version: '3.8'
 
-  nginx:
-    image: multiplayer-soccer-nginx:latest
-    container_name: multiplayer-soccer-nginx
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: multiplayer-soccer-postgres
+    environment:
+      POSTGRES_DB: soccerdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - soccer-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: multiplayer-soccer-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/soccerdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - soccer-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: multiplayer-soccer-frontend
     ports:
       - "80:80"
     depends_on:
-      - app
+      - backend
+    networks:
+      - soccer-network
+
+volumes:
+  postgres_data:
+
+networks:
+  soccer-network:
+    driver: bridge
