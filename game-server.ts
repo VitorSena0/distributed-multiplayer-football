@@ -1,6 +1,7 @@
 import express from 'express'; // Freamework web servir arquivos estáticos e gerenciar rotas
 import { Server as SocketIOServer } from 'socket.io'; // Biblioteca para comunicação em tempo real via WebSockets
 import http from 'http'; // Módulo nativo do Node.js para criar servidores HTTP
+import path from 'path'; // Módulo nativo do Node.js para manipular caminhos de arquivos
 
 import { rooms } from './game/roomManager';
 import { gameLoop } from './game/gameLoop';
@@ -17,7 +18,8 @@ const io = new SocketIOServer(server, { // Cria uma instância do Socket.IO vinc
     allowEIO3: true, // Habilita compatibilidade com clientes que usam a versão 3 do Engine.IO
 });
 
-app.use(express.static('public')); // Serve arquivos estáticos da pasta 'public'
+// Serve arquivos estáticos do build do React
+app.use(express.static(path.join(__dirname, '../public/dist')));
 
 // Registra os manipuladores de eventos do Socket.IO
 registerSocketHandlers(io);

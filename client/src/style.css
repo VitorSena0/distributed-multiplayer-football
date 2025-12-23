@@ -1,0 +1,335 @@
+/* Estilos gerais */
+body {
+    margin: 0;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+    touch-action: manipulation;
+    box-sizing: border-box;
+}
+
+#game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100vw, 900px);
+    max-width: 100vw;
+    gap: 10px;
+}
+
+/* Estilo do canvas */
+canvas {
+    display: block;
+    background-color: #2c3e50;
+    border: 3px solid #34495e;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 
+                0 0 60px rgba(52, 152, 219, 0.2);
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+}
+
+/* UI do jogo (sobreposição mínima) */
+#game-ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+}
+
+
+#waiting-screen {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    text-align: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.3) 0%, rgba(41, 128, 185, 0.3) 100%);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    max-width: 280px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+#room-info {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ecf0f1;
+    text-align: left;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#winner-display {
+    font-size: 26px;
+    font-weight: bold;
+    color: #f1c40f;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(241, 196, 15, 0.8),
+                 0 2px 8px rgba(0, 0, 0, 0.8);
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.2) 0%, rgba(243, 156, 18, 0.2) 100%);
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid rgba(241, 196, 15, 0.5);
+    margin: 8px 0;
+    transition: opacity 0.5s ease, transform 0.3s ease;
+    opacity: 0;
+    display: none;
+}
+
+#winner-display.show {
+    opacity: 1;
+    display: block;
+    transform: scale(1);
+    animation: pulse-winner 2s infinite;
+}
+
+#winner-display.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+    animation-play-state: paused;
+}
+
+@keyframes pulse-winner {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+    }
+    50% { 
+        box-shadow: 0 0 40px rgba(241, 196, 15, 0.8);
+    }
+}
+
+#restart-button {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#restart-button:hover {
+    background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+    transform: translateY(-2px);
+}
+
+#restart-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(39, 174, 96, 0.4);
+}
+
+/* IDs dos jogadores */
+.player-id {
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none;
+    transform: translate(-50%, -30px);
+    white-space: nowrap;
+    z-index: 200;
+}
+
+.player-id.my-player {
+    color: #ffff00;
+    font-size: 14px;
+    font-weight: bolder;
+    text-shadow: 
+      0 0 5px #000000,
+      0 0 10px #ffff00;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: translate(-50%, -40px) scale(1); }
+    50% { transform: translate(-50%, -40px) scale(1.1); }
+    100% { transform: translate(-50%, -40px) scale(1); }
+}
+
+/* HUD inferior: ping, cronômetro e placar */
+#hud-bottom {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+#ping {
+    color: #ecf0f1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.3) 0%, rgba(41, 128, 185, 0.3) 100%);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 80;
+}
+
+#timer-bottom {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.3) 0%, rgba(211, 84, 0, 0.3) 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(230, 126, 34, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 1px;
+}
+
+#scoreboard {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.3) 0%, rgba(142, 68, 173, 0.3) 100%);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(155, 89, 182, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.5px;
+}
+
+/* Controles mobile */
+#mobile-controls {
+    position: fixed;
+    display: none;
+    width: 100%;
+    max-width: 900px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 84px; /* deixa espaço para o HUD inferior */
+    justify-content: flex-start;
+    align-items: flex-end;
+    padding: 0 16px;
+    box-sizing: border-box;
+    z-index: 120;
+    gap: 16px;
+    pointer-events: none;
+}
+
+#joystick-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    pointer-events: auto;
+}
+
+#joystick-base {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.3) 0%, rgba(41, 128, 185, 0.3) 100%);
+    border: 2px solid rgba(52, 152, 219, 0.5);
+    border-radius: 50%;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+#joystick-thumb {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(236, 240, 241, 0.7) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    position: absolute;
+    left: 35px;
+    top: 35px;
+    touch-action: none;
+    transition: transform 0.1s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+#action-btn {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.4) 0%, rgba(192, 57, 43, 0.4) 100%);
+    border-radius: 50%;
+    border: 2px solid rgba(231, 76, 60, 0.6);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 20px;
+    touch-action: none;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#action-btn:active {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.7) 0%, rgba(192, 57, 43, 0.7) 100%);
+    box-shadow: 0 2px 10px rgba(231, 76, 60, 0.6);
+    transform: scale(0.95);
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 768px) {
+    #game-ui {
+      position: static;
+      width: 100%;
+      align-items: flex-start;
+      margin-top: 4px;
+      gap: 6px;
+    }
+
+    #mobile-controls {
+      display: flex;
+    }
+
+    /* Esconde o botão de chute em mobile */
+    #action-btn {
+      display: none;
+    }
+
+    #hud-bottom {
+      justify-content: center;
+      gap: 8px;
+    }
+}

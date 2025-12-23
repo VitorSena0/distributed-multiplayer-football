@@ -97,10 +97,12 @@ Para testar localmente, veja a seção [Instalação e Execução Local](#instal
 	- Socket.IO
 	- TypeScript
 - **Cliente**:
-	- HTML5
-	- CSS3
-	- TypeScript (compilado para JavaScript)
-	- Canvas / DOM
+	- React 19
+	- TypeScript
+	- Vite (build tool)
+	- Socket.IO Client
+	- HTML5 Canvas para renderização do jogo
+	- CSS3 com gradientes e glassmorphism
 - **Infra / Deploy**:
 	- Docker / Docker Compose
 	- Nginx (como proxy reverso)
@@ -137,10 +139,10 @@ Na raiz do projeto:
 # Instalar dependências
 npm install
 
-# Compilar o TypeScript
+# Compilar o servidor e o cliente React
 npm run build
 
-# Executar o servidor
+# Executar o servidor (já inclui os arquivos buildados do React)
 npm run start
 ```
 
@@ -150,11 +152,18 @@ Ou para desenvolvimento:
 # Instalar dependências
 npm install
 
-# Executar em modo desenvolvimento (com ts-node)
-npm run dev
+# Terminal 1: Executar servidor em modo desenvolvimento
+npm run dev:server
+
+# Terminal 2: Executar Vite dev server para hot reload do React
+npm run dev:client
 ```
 
-O servidor, por padrão, escuta em `PORT` (se definida) ou `3000`.
+**Modo Produção**: O servidor escuta em `PORT` (se definida) ou `3000` e serve os arquivos buildados do React.
+
+**Modo Desenvolvimento**: 
+- Servidor Node: `http://localhost:3000`
+- Vite dev server (com hot reload): `http://localhost:5173`
 
 Abra no navegador:
 
@@ -219,19 +228,27 @@ A lógica de partida está em `game/match.ts`:
 
 ## Front-end (cliente)
 
-Os arquivos do cliente estão em `public/`:
+O frontend foi migrado para **React** com TypeScript para melhor componentização e reatividade:
 
-- `public/index.html` — página principal do jogo.
-- `public/style.css` — estilos do campo, HUD, botões, etc.
-- `public/game.ts` — lógica do cliente em TypeScript (compilada para `public/dist/game.js`):
-	- Conecta ao Socket.IO do servidor.
-	- Envia inputs (teclas pressionadas) para o servidor.
-	- Renderiza o campo, jogadores, bola, placar e cronômetro.
-	- Trata eventos como:
-		- Snapshot de estado do jogo.
-		- Atualizações de timer.
-		- Mensagens de sala cheia, início/fim de partida, etc.
-	- Utiliza tipagem forte para garantir segurança de tipos nas interfaces de comunicação.
+**Estrutura:**
+- `client/` — código fonte React
+  - `client/src/` — componentes React e lógica
+    - `App.tsx` — componente principal
+    - `components/` — componentes React (Canvas, UI, HUD, Controles)
+    - `hooks/` — custom hooks (useGameSocket)
+    - `types/` — definições TypeScript
+  - `client/index.html` — template HTML do React
+
+**Build:**
+- Vite compila o React para `public/dist/`
+- O servidor Express serve os arquivos buildados
+
+**Funcionalidades:**
+- Renderização do jogo via Canvas com React hooks
+- Gerenciamento de estado com React hooks
+- Socket.IO integrado via custom hook
+- Controles mobile responsivos
+- UI componentizada e reutilizável
 
 ---
 
