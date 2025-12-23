@@ -852,16 +852,22 @@ function draw(): void {
       ctx.fill();
     }
 
-    // Linhas do campo com brilho
+    // Linhas do campo com brilho (otimizado)
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 5;
     ctx.setLineDash([]);
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
-    ctx.shadowBlur = 8;
     const padding = 0;
     const innerWidth = config.canvas.width - padding * 2;
     const innerHeight = config.canvas.height - padding * 2;
 
+    // Linha de brilho (mais grossa, semitransparente)
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 8;
+    ctx.strokeRect(padding, padding, innerWidth, innerHeight);
+    
+    // Linha principal
+    ctx.globalAlpha = 1.0;
+    ctx.lineWidth = 4;
     ctx.strokeRect(padding, padding, innerWidth, innerHeight);
 
     // Linha central
@@ -871,6 +877,14 @@ function draw(): void {
     ctx.stroke();
 
     // Círculo central
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.arc(config.canvas.width / 2, config.canvas.height / 2, 60, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    ctx.globalAlpha = 1.0;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(config.canvas.width / 2, config.canvas.height / 2, 60, 0, Math.PI * 2);
     ctx.stroke();
@@ -878,7 +892,6 @@ function draw(): void {
     ctx.arc(config.canvas.width / 2, config.canvas.height / 2, 4, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
     ctx.fill();
-    ctx.shadowBlur = 0;
 
     // Áreas e gols
     const bigBoxWidth = 140;
@@ -934,16 +947,16 @@ function draw(): void {
       config.goal.height
     );
 
-    // Jogadores com sombra e brilho
+    // Jogadores com gradiente (otimizado - sombra simplificada)
     for (const [id, player] of Object.entries(state.gameState.players)) {
       if (player) {
         ctx.globalAlpha = state.matchEnded && !state.canMove ? 0.7 : 1.0;
         
-        // Sombra do jogador
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 15;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 5;
+        // Sombra simplificada (círculo escuro abaixo)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.beginPath();
+        ctx.arc(player.x + 2, player.y + 4, config.player.radius, 0, Math.PI * 2);
+        ctx.fill();
         
         // Gradiente para o jogador
         const playerGradient = ctx.createRadialGradient(
@@ -964,32 +977,36 @@ function draw(): void {
         ctx.arc(player.x, player.y, config.player.radius, 0, Math.PI * 2);
         ctx.fill();
         
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
         ctx.globalAlpha = 1.0;
 
-        // Destaque para o próprio jogador
+        // Destaque para o próprio jogador (brilho simplificado)
         if (id === socket.id) {
+          // Brilho externo
+          ctx.strokeStyle = player.team === 'red' 
+            ? 'rgba(231, 76, 60, 0.4)' 
+            : 'rgba(52, 152, 219, 0.4)';
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          ctx.arc(player.x, player.y, config.player.radius + 6, 0, Math.PI * 2);
+          ctx.stroke();
+          
+          // Borda branca
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 3;
-          ctx.shadowColor = player.team === 'red' ? '#e74c3c' : '#3498db';
-          ctx.shadowBlur = 15;
           ctx.beginPath();
           ctx.arc(player.x, player.y, config.player.radius + 5, 0, Math.PI * 2);
           ctx.stroke();
-          ctx.shadowBlur = 0;
         }
       }
     }
 
-    // Bola com sombra e brilho
+    // Bola com gradiente (otimizado - sombra simplificada)
     if (state.gameState.ball.x >= -50 && state.gameState.ball.x <= config.canvas.width + 50) {
-      // Sombra da bola
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      ctx.shadowBlur = 10;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 4;
+      // Sombra simplificada (círculo escuro abaixo)
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.arc(state.gameState.ball.x + 1, state.gameState.ball.y + 3, state.gameState.ball.radius, 0, Math.PI * 2);
+      ctx.fill();
       
       // Gradiente para a bola
       const ballGradient = ctx.createRadialGradient(
@@ -1005,9 +1022,6 @@ function draw(): void {
       ctx.fill();
       
       // Borda preta da bola
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
       ctx.strokeStyle = '#2c3e50';
       ctx.lineWidth = 2;
       ctx.stroke();

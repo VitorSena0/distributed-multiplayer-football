@@ -95,6 +95,12 @@ canvas {
     transition: opacity 0.5s ease, transform 0.3s ease;
     opacity: 0;
     display: none;
+}
+
+#winner-display.show {
+    opacity: 1;
+    display: block;
+    transform: scale(1);
     animation: pulse-winner 2s infinite;
 }
 
