@@ -1,448 +1,152 @@
-# Multiplayer Soccer
+# Multiplayer Soccer - Java Spring Boot + React
 
-Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO** e **TypeScript**.  
-O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
+Este projeto foi refatorado de TypeScript/Node.js para Java Spring Boot (backend) e React (frontend).
 
-> **📝 Nota sobre TypeScript**: Este projeto foi completamente refatorado de JavaScript para TypeScript para melhorar a manutenibilidade do código e proporcionar uma melhor experiência de desenvolvimento com tipagem estática. Todos os arquivos `.js` foram convertidos para `.ts` com tipos bem definidos para variáveis, funções e estruturas de dados.
+## Estrutura do Projeto
 
----
-
-## Índice
-
-- [Multiplayer Soccer](#multiplayer-soccer)
-  - [Índice](#índice)
-  - [Visão Geral](#visão-geral)
-  - [Demonstração](#demonstração)
-  - [Arquitetura](#arquitetura)
-  - [Recursos do Jogo](#recursos-do-jogo)
-  - [Tecnologias Utilizadas](#tecnologias-utilizadas)
-  - [Pré-requisitos](#pré-requisitos)
-  - [Instalação e Execução Local](#instalação-e-execução-local)
-  - [Salas, Times e Balanceamento](#salas-times-e-balanceamento)
-  - [Regras de Partida e Temporizador](#regras-de-partida-e-temporizador)
-  - [Front-end (cliente)](#front-end-cliente)
-  - [Backend (servidor de jogo)](#backend-servidor-de-jogo)
-  - [Estrutura de Pastas](#estrutura-de-pastas)
-  - [Docker e Docker Compose](#docker-e-docker-compose)
-    - [1. Imagem do app Node](#1-imagem-do-app-node)
-    - [2. Docker Compose (app + Nginx)](#2-docker-compose-app--nginx)
-  - [Deploy em Produção (AWS EC2 + Nginx)](#deploy-em-produção-aws-ec2--nginx)
-  - [Variáveis de Ambiente](#variáveis-de-ambiente)
-  - [Roteiro de Desenvolvimento Futuro](#roteiro-de-desenvolvimento-futuro)
-  - [Licença](#licença)
-
----
-
-## Visão Geral
-
-O Multiplayer Soccer é um jogo de futebol top‑down onde vários jogadores controlam seus bonecos em **tempo real** pela web.  
-O servidor Node é responsável por:
-
-- Gerenciar **salas de jogo** independentes.
-- Balancear e manter **times vermelho e azul**.
-- Rodar o **game loop** (atualização de posições, colisões, placar).
-- Controlar o **temporizador da partida** e o fluxo de início/fim/reinício.
-- Enviar para cada cliente o **estado oficial** da partida (snapshot do jogo).
-
-O cliente web (HTML/Canvas/JS) renderiza o campo, jogadores, bola, placar e cronômetro, além de enviar os comandos de input (setas/WASD, etc.) para o servidor via Socket.IO.
-
----
-
-## Demonstração
-
-Exemplos de deploy já usados (podem não estar ativos no momento):
-
-- Render: `https://multiplayer-soccer.onrender.com`
-- Histórico de endpoints úteis (ngrok / IPs de testes):
-	- `191.34.226.49`
-	- `https://4726-2804-1b1-1293-7fcc-2167-4b14-41da-1f38.ngrok-free.app`
-
-Para testar localmente, veja a seção [Instalação e Execução Local](#instalação-e-execução-local).
-
----
-
-## Arquitetura
-
-- **Node.js + Express**: servidor HTTP responsável por expor uma API mínima e servir os arquivos estáticos do cliente (pasta `public/`).
-- **Socket.IO**: canal de comunicação em tempo real entre cliente e servidor, usado para:
-	- Enviar inputs do jogador para o servidor.
-	- Receber o estado atualizado do jogo (posição de jogadores, bola, placar, timer).
-- **Game Loop no servidor**:
-	- Roda a **60 FPS** (`setInterval` a cada `1000 / 60` ms).
-	- Atualiza física básica: velocidade, posições, colisões, limites de campo, gol, cantos etc.
-- **Timer de partida**:
-	- Atualizado a cada 1 segundo.
-	- Emite eventos de início, atualização de cronômetro e fim de partida.
-
----
-
-## Recursos do Jogo
-
-- Multiplayer em tempo real via WebSockets (Socket.IO).
-- Gestão de múltiplas salas independentes.
-- Times **vermelho** e **azul**, com balanceamento automático.
-- Placar e cronômetro visíveis para todos os clientes.
-- Reinício de partida quando o tempo zera e todos clicam em “Jogar Novamente”.
-- Colisão básica jogador x bola, limites de campo e regras de cantos.
-- Detecção de sala cheia com evento específico para o cliente.
-
----
+```
+├── backend/                # Spring Boot application
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/sd/multiplayer_soccer/
+│   │   │   │   ├── config/         # Configurações (WebSocket, etc)
+│   │   │   │   ├── entity/         # Entidades JPA (para uso futuro)
+│   │   │   │   ├── model/          # Modelos do jogo
+│   │   │   │   ├── service/        # Lógica de negócio
+│   │   │   │   └── websocket/      # Handlers WebSocket
+│   │   │   └── resources/
+│   │   │       └── application.properties
+│   │   └── test/
+│   ├── pom.xml
+│   └── Dockerfile
+│
+├── frontend/               # React application
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/       # WebSocket e lógica do jogo
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── package.json
+│   └── Dockerfile
+│
+└── docker-compose.yml      # Orquestração de todos os serviços
+```
 
 ## Tecnologias Utilizadas
 
-- **Linguagem**: TypeScript (compilado para JavaScript)
-- **Servidor**:
-	- Node.js 18+
-	- Express
-	- Socket.IO
-	- TypeScript
-- **Cliente**:
-	- HTML5
-	- CSS3
-	- TypeScript (compilado para JavaScript)
-	- Canvas / DOM
-- **Infra / Deploy**:
-	- Docker / Docker Compose
-	- Nginx (como proxy reverso)
-	- AWS EC2 (exemplo de ambiente de produção)
-	- ngrok (para tunel HTTP em desenvolvimento remoto)
+### Backend
+- Java 21
+- Spring Boot 3.2.1
+- Spring WebSocket (STOMP)
+- Spring Data JPA
+- PostgreSQL
+- Lombok
 
----
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- STOMP.js (WebSocket client)
+- SockJS
 
-## Pré-requisitos
+### Infraestrutura
+- Docker
+- Docker Compose
+- Nginx (como proxy reverso no frontend)
+- PostgreSQL
 
-Para rodar **localmente**:
+## Modelos de Dados (Preparados para Uso Futuro)
 
-- **Node.js 18+** e **npm**
-- Porta **TCP 3000** liberada (ou configure outra via variável `PORT`)
+O projeto inclui entidades JPA prontas para armazenar:
+- **PlayerEntity**: Nome do jogador, senha, gols, vitórias, empates, derrotas
+- **MatchEntity**: Histórico de partidas
 
-Para usar **Docker**:
+**Nota**: Atualmente, nenhum dado está sendo persistido no banco. As entidades estão apenas estruturadas para implementação futura.
 
-- Docker instalado e em execução
-- (Opcional) Docker Compose
+## Executando o Projeto
 
-Para seguir o guia de deploy na **AWS EC2**:
+### Usando Docker Compose (Recomendado)
 
-- Conta AWS
-- Instância EC2 (Ubuntu ou Amazon Linux recomendados)
-- Acesso SSH
-
----
-
-## Instalação e Execução Local
-
-Na raiz do projeto:
+1. Certifique-se de ter Docker e Docker Compose instalados
+2. Na raiz do projeto, execute:
 
 ```bash
-# Instalar dependências
-npm install
-
-# Compilar o TypeScript
-npm run build
-
-# Executar o servidor
-npm run start
+docker-compose up --build
 ```
 
-Ou para desenvolvimento:
+3. Acesse o jogo em: http://localhost
+
+### Desenvolvimento Local
+
+#### Backend
 
 ```bash
-# Instalar dependências
-npm install
+cd backend
+./mvnw spring-boot:run
+```
 
-# Executar em modo desenvolvimento (com ts-node)
+O backend estará disponível em: http://localhost:8080
+
+#### Frontend
+
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-O servidor, por padrão, escuta em `PORT` (se definida) ou `3000`.
-
-Abra no navegador:
-
-- `http://localhost:3000`
-
-O front-end é servido automaticamente a partir da pasta `public/`.
-
----
-
-## Salas, Times e Balanceamento
-
-A lógica de salas está em `game/roomManager.ts`.
-
-- Cada sala comporta até **6 jogadores simultâneos** (`MAX_PLAYERS_PER_ROOM`).
-- Ao acessar o jogo sem parâmetros (`/`), o servidor:
-	- Procura uma sala disponível com vagas.
-	- Caso não encontre, **cria uma nova** (`room-1`, `room-2`, ...).
-- Para entrar em uma sala específica, use o parâmetro `room` na URL, por exemplo:
-	- `https://seu-dominio.com/?room=amigos`
-- O identificador de sala é **sanitizado**:
-	- Apenas letras, números, `-` e `_` são aceitos.
-	- Entradas inválidas são descartadas.
-
-**Sala cheia**:
-
-- Se uma sala estiver com todos os slots ocupados, o servidor:
-	- Emite o evento `roomFull` para o cliente.
-	- Encerra a conexão para evitar sobrecarga.
-
-- **Balanceamento de times**:
-	- O servidor tenta manter a diferença de jogadores entre os times `red` e `blue` em **no máximo 1**.
-	- Quando necessário, jogadores podem ser realocados de um time para outro (lógica em `game/match.ts`).
-
----
-
-## Regras de Partida e Temporizador
-
-A lógica de partida está em `game/match.ts`:
-
-- **Início/Reinício de partida**:
-	- A partida é iniciada quando há ao menos um jogador em cada time.
-	- Ao reiniciar, o servidor:
-		- Zera o cronômetro.
-		- Reseta posições de todos os jogadores.
-		- Chama `resetBall` para reposicionar a bola (ver `game/ball.ts`).
-- **Temporizador**:
-	- Atualizado pela função `updateTimer(room, io)` a cada 1 segundo.
-	- Emite o evento `timerUpdate` com `matchTime` para todos da sala.
-	- Ao chegar em zero:
-		- Emite `matchEnd`.
-		- A partida entra em estado de espera.
-
-**Reinício após fim da partida**:
-
-- Quando o cronômetro chega a zero:
-	- Todos os jogadores precisam clicar em **“Jogar Novamente”**.
-	- O servidor registra quem está “pronto”.
-	- Assim que **todos** estiverem prontos **e** houver pelo menos um jogador em cada time:
-		- A partida é reiniciada (novo kick-off, bola e posições resetadas).
-
----
-
-## Front-end (cliente)
-
-Os arquivos do cliente estão em `public/`:
-
-- `public/index.html` — página principal do jogo.
-- `public/style.css` — estilos do campo, HUD, botões, etc.
-- `public/game.ts` — lógica do cliente em TypeScript (compilada para `public/dist/game.js`):
-	- Conecta ao Socket.IO do servidor.
-	- Envia inputs (teclas pressionadas) para o servidor.
-	- Renderiza o campo, jogadores, bola, placar e cronômetro.
-	- Trata eventos como:
-		- Snapshot de estado do jogo.
-		- Atualizações de timer.
-		- Mensagens de sala cheia, início/fim de partida, etc.
-	- Utiliza tipagem forte para garantir segurança de tipos nas interfaces de comunicação.
-
----
-
-## Backend (servidor de jogo)
-
-Ponto de entrada: `game-server.ts` (compilado para `dist/game-server.js`).
-
-Responsabilidades principais:
-
-- Criar o servidor HTTP (`http.createServer(app)`).
-- Plugar o Socket.IO (`const io = new SocketIOServer(server, { ... })`).
-- Servir arquivos estáticos da pasta `public/` via Express.
-- Registrar os handlers de Socket.IO (`game/socketHandlers.ts`).
-- Executar o game loop e o timer:
-
-	- `runGameLoops()`:
-		- Percorre todas as salas (`rooms`) e chama `gameLoop(room, io)`.
-		- Rodando a **60 FPS** (`setInterval(runGameLoops, 1000 / 60)`).
-	- `handleTimers()`:
-		- Percorre todas as salas e chama `updateTimer(room, io)`.
-		- Rodando a cada **1 segundo** (`setInterval(handleTimers, 1000)`).
-
-Outros módulos importantes:
-
-- `game/types.ts` — definições de tipos TypeScript para todas as estruturas do jogo (Room, Player, Ball, etc.).
-- `game/constants.ts` — constantes de jogo (tamanhos, duração, limites).
-- `game/roomManager.ts` — criação, alocação e limpeza de salas com tipos bem definidos.
-- `game/match.ts` — temporizador, início/fim de partida, balanceamento de times.
-- `game/ball.ts` — estado e reposicionamento da bola, cantos.
-- `game/gameLoop.ts` — lógica central de atualização a cada tick.
-- `game/socketHandlers.ts` — mapeamento de eventos Socket.IO (conexão, desconexão, inputs, "jogar novamente" etc.) com tipagem forte.
-- `game/gameLoop.js` — lógica central de atualização a cada tick.
-- `game/socketHandlers.js` — mapeamento de eventos Socket.IO (conexão, desconexão, inputs, “jogar novamente” etc.).
-
----
-
-## Estrutura de Pastas
-
-Estrutura simplificada do repositório:
-
-```text
-Multiplayer-Soccer/
-├─ game-server.ts         # Ponto de entrada do servidor Node/Express/Socket.IO (TypeScript)
-├─ package.json           # Metadados e scripts npm
-├─ tsconfig.json          # Configuração TypeScript para o servidor
-├─ tsconfig.client.json   # Configuração TypeScript para o cliente
-├─ dockerfile             # Dockerfile do app Node
-├─ docker-compose.yml     # Compose para subir app + nginx
-├─ README.md              # Este arquivo
-│
-├─ game/                  # Lado servidor: lógica de jogo (TypeScript)
-│  ├─ types.ts
-│  ├─ constants.ts
-│  ├─ roomManager.ts
-│  ├─ match.ts
-│  ├─ ball.ts
-│  ├─ gameLoop.ts
-│  └─ socketHandlers.ts
-│
-├─ dist/                  # Código JavaScript compilado do servidor
-│  ├─ game-server.js
-│  └─ game/
-│
-├─ public/                # Lado cliente (front-end)
-│  ├─ index.html
-│  ├─ style.css
-│  ├─ game.ts            # Código TypeScript do cliente
-│  └─ dist/              # Código JavaScript compilado do cliente
-│     └─ game.js
-│
-├─ nginx/                 # Configuração Nginx para proxy reverso
-│  ├─ default.conf
-│  └─ Dockerfile
-```
-
----
-
-## Docker e Docker Compose
-
-O projeto já vem preparado para rodar em containers.
-
-### 1. Imagem do app Node
-
-O arquivo `dockerfile` na raiz contém algo como:
-
-```Dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY tsconfig*.json ./
-COPY game-server.ts ./
-COPY game ./game
-COPY public ./public
-RUN npm run build
-RUN npm prune --production
-ENV PORT=3000
-EXPOSE 3000
-CMD ["node", "dist/game-server.js"]
-```
-
-**Build da imagem:**
-
-```bash
-docker build -t multiplayer-soccer-app -f dockerfile .
-```
-
-**Rodar o container (sem Nginx):**
-
-```bash
-docker run --rm -p 3000:3000 --name multiplayer-soccer-app multiplayer-soccer-app
-```
-
-Acesse em:
-
-- `http://localhost:3000`
-
-### 2. Docker Compose (app + Nginx)
-
-O arquivo `docker-compose.yml` define dois serviços:
-
-- `app`: imagem `multiplayer-soccer-app:latest`
-- `nginx`: imagem `multiplayer-soccer-nginx:latest`, expondo porta **80** e fazendo proxy para `app:3000`.
-
-Fluxo típico:
-
-1. Build da imagem do app:
-
-	 ```bash
-	 docker build -t multiplayer-soccer-app -f dockerfile .
-	 ```
-
-2. Build da imagem do Nginx (dentro da pasta `nginx/`):
-
-	 ```bash
-	 cd nginx
-	 docker build -t multiplayer-soccer-nginx .
-	 cd ..
-	 ```
-
-3. Subir tudo com Docker Compose (na raiz do projeto):
-
-	 ```bash
-	 docker compose up
-	 # ou
-	 docker-compose up
-	 ```
-
-4. Acessar no navegador:
-
-	 - `http://localhost` (porta 80 → Nginx → app:3000)
-
----
-
-## Deploy em Produção (AWS EC2 + Nginx)
-
-1. **Sem Docker**:
-	 - Node.js + npm instalados direto na EC2.
-	 - PM2 para gerenciar o processo (`pm2 start game-server.js`).
-	 - Nginx como proxy reverso, escutando na porta 80 e encaminhando para `localhost:3000`.
-
-2. **Com Docker**:
-	 - Container com o app Node.
-	 - (Opcional) Container com Nginx na frente.
-	 - Opções para:
-		 - Enviar somente a imagem `.tar` (via `docker save` / `docker load`).
-		 - Ou enviar apenas arquivos necessários (`Dockerfile`, `docker-compose.yml` etc.).
-
-É recomendável **ler esse guia** quando for fazer deploy real, pois ele também explica:
-
-- Configuração de **Security Groups** (liberando portas 80/3000).
-- Boas práticas de não enviar o projeto inteiro para a EC2 sem necessidade.
-- Rotinas de start/stop, logs e troubleshooting.
-
----
-
-## Variáveis de Ambiente
-
-Variáveis utilizadas:
-
-- `PORT`:
-	- Porta na qual o servidor Node/Express/Socket.IO irá escutar.
-	- Padrão: `3000` se não definido.
-
-Exemplos:
-
-```bash
-# Rodar em outra porta localmente
-PORT=4000 node game-server.js
-
-# Com Docker
-docker run --rm -e PORT=3000 -p 3000:3000 multiplayer-soccer-app
-```
-
----
-
-## Roteiro de Desenvolvimento Futuro
-
-Algumas ideias de evolução do projeto:
-
-- Sistema de autenticação / login simples (apelidos persistentes).
-- Ranking de jogadores (gols, vitórias, partidas jogadas).
-- Sala de espera / lobby antes de entrar nos jogos.
-- Modo espectador.
-- Suporte a dispositivos móveis (controles touch).
-- Efeitos visuais e sonoros mais elaborados.
-- Testes automatizados para módulos de jogo (game loop, colisões, etc.).
-
----
+O frontend estará disponível em: http://localhost:3000
+
+## Como Jogar
+
+1. Acesse http://localhost (ou http://localhost:3000 em desenvolvimento)
+2. Você será automaticamente alocado em uma sala
+3. Use as setas do teclado para mover seu jogador
+4. O jogo começa automaticamente quando houver jogadores nos dois times
+5. Marque gols no gol adversário!
+6. Após o término da partida, clique em "Jogar Novamente"
+
+## Lógica do Jogo
+
+Toda a lógica do jogo foi migrada de TypeScript para Java:
+
+- **GameLoopService**: Loop principal do jogo (60 FPS)
+- **BallService**: Física da bola e colisões com cantos
+- **MatchService**: Gerenciamento de partidas, times e reinício
+- **RoomManagerService**: Gerenciamento de salas
+- **GameWebSocketHandler**: Comunicação WebSocket
+
+## Arquitetura
+
+O projeto segue uma arquitetura cliente-servidor:
+
+1. **Backend (Spring Boot)**:
+   - Gerencia o estado do jogo
+   - Processa física e colisões
+   - Coordena múltiplas salas de jogo
+   - Comunica-se com clientes via WebSocket (STOMP)
+
+2. **Frontend (React)**:
+   - Renderiza o jogo no canvas
+   - Captura entrada do jogador
+   - Se comunica com backend via WebSocket
+   - Atualiza UI em tempo real
+
+3. **Infraestrutura**:
+   - Nginx serve o frontend e proxy para backend
+   - PostgreSQL preparado para persistência futura
+   - Docker Compose orquestra todos os serviços
+
+## Próximos Passos
+
+- [ ] Implementar autenticação de jogadores
+- [ ] Ativar persistência de dados (estatísticas, histórico)
+- [ ] Adicionar sistema de ranking
+- [ ] Implementar chat entre jogadores
+- [ ] Adicionar power-ups e variações de jogo
+- [ ] Melhorar UI/UX do frontend
+- [ ] Adicionar testes automatizados
 
 ## Licença
 
-Este projeto está licenciado sob a licença **ISC** (ver campo `license` em `package.json`).  
-Adapte o texto da licença conforme necessário para o uso que você pretende.
+Este projeto é para fins educacionais.
