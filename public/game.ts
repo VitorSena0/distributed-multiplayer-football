@@ -799,14 +799,22 @@ function draw(): void {
   try {
     ctx.clearRect(0, 0, config.canvas.width, config.canvas.height);
 
-    // Fundo base
-    ctx.fillStyle = '#28412f';
+    // Fundo base com gradiente
+    const gradient = ctx.createRadialGradient(
+      config.canvas.width / 2, config.canvas.height / 2, 0,
+      config.canvas.width / 2, config.canvas.height / 2, config.canvas.width / 2
+    );
+    gradient.addColorStop(0, '#2d5a3d');
+    gradient.addColorStop(1, '#1a3827');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, config.canvas.width, config.canvas.height);
 
-    // Textura de gramado
+    // Textura de gramado aprimorada
     const stripeHeight = 24;
     for (let y = 0; y < config.canvas.height; y += stripeHeight) {
-      ctx.fillStyle = Math.floor(y / stripeHeight) % 2 === 0 ? '#2f4b37' : '#25382b';
+      ctx.fillStyle = Math.floor(y / stripeHeight) % 2 === 0 
+        ? 'rgba(47, 75, 55, 0.5)' 
+        : 'rgba(37, 56, 43, 0.5)';
       ctx.fillRect(0, y, config.canvas.width, stripeHeight);
     }
 
@@ -844,10 +852,12 @@ function draw(): void {
       ctx.fill();
     }
 
-    // Linhas do campo
-    ctx.strokeStyle = '#f5f5f5';
+    // Linhas do campo com brilho
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 4;
     ctx.setLineDash([]);
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+    ctx.shadowBlur = 8;
     const padding = 0;
     const innerWidth = config.canvas.width - padding * 2;
     const innerHeight = config.canvas.height - padding * 2;
@@ -866,8 +876,9 @@ function draw(): void {
     ctx.stroke();
     ctx.beginPath();
     ctx.arc(config.canvas.width / 2, config.canvas.height / 2, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#f5f5f5';
+    ctx.fillStyle = '#ffffff';
     ctx.fill();
+    ctx.shadowBlur = 0;
 
     // Áreas e gols
     const bigBoxWidth = 140;
@@ -901,10 +912,21 @@ function draw(): void {
     ctx.arc(config.canvas.width - padding - bigBoxWidth, config.canvas.height / 2, 60, Math.PI / 2, Math.PI * 1.5);
     ctx.stroke();
 
-    // Gols
-    ctx.fillStyle = '#ff000055';
+    // Gols com efeito de rede
+    // Gol vermelho (esquerda)
+    const redGoalGradient = ctx.createLinearGradient(0, 0, config.goal.width, 0);
+    redGoalGradient.addColorStop(0, 'rgba(231, 76, 60, 0.4)');
+    redGoalGradient.addColorStop(1, 'rgba(231, 76, 60, 0.1)');
+    ctx.fillStyle = redGoalGradient;
     ctx.fillRect(0, config.canvas.height / 2 - config.goal.height / 2, config.goal.width, config.goal.height);
-    ctx.fillStyle = '#0000ff55';
+    
+    // Gol azul (direita)
+    const blueGoalGradient = ctx.createLinearGradient(
+      config.canvas.width - config.goal.width, 0, config.canvas.width, 0
+    );
+    blueGoalGradient.addColorStop(0, 'rgba(52, 152, 219, 0.1)');
+    blueGoalGradient.addColorStop(1, 'rgba(52, 152, 219, 0.4)');
+    ctx.fillStyle = blueGoalGradient;
     ctx.fillRect(
       config.canvas.width - config.goal.width,
       config.canvas.height / 2 - config.goal.height / 2,
@@ -912,32 +934,83 @@ function draw(): void {
       config.goal.height
     );
 
-    // Jogadores
+    // Jogadores com sombra e brilho
     for (const [id, player] of Object.entries(state.gameState.players)) {
       if (player) {
         ctx.globalAlpha = state.matchEnded && !state.canMove ? 0.7 : 1.0;
-        ctx.fillStyle = player.team;
+        
+        // Sombra do jogador
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 5;
+        
+        // Gradiente para o jogador
+        const playerGradient = ctx.createRadialGradient(
+          player.x - 5, player.y - 5, 0,
+          player.x, player.y, config.player.radius
+        );
+        
+        if (player.team === 'red') {
+          playerGradient.addColorStop(0, '#e74c3c');
+          playerGradient.addColorStop(1, '#c0392b');
+        } else {
+          playerGradient.addColorStop(0, '#3498db');
+          playerGradient.addColorStop(1, '#2980b9');
+        }
+        
+        ctx.fillStyle = playerGradient;
         ctx.beginPath();
         ctx.arc(player.x, player.y, config.player.radius, 0, Math.PI * 2);
         ctx.fill();
+        
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
         ctx.globalAlpha = 1.0;
 
+        // Destaque para o próprio jogador
         if (id === socket.id) {
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 3;
+          ctx.shadowColor = player.team === 'red' ? '#e74c3c' : '#3498db';
+          ctx.shadowBlur = 15;
           ctx.beginPath();
           ctx.arc(player.x, player.y, config.player.radius + 5, 0, Math.PI * 2);
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
       }
     }
 
-    // Bola
+    // Bola com sombra e brilho
     if (state.gameState.ball.x >= -50 && state.gameState.ball.x <= config.canvas.width + 50) {
-      ctx.fillStyle = '#ffffff';
+      // Sombra da bola
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 4;
+      
+      // Gradiente para a bola
+      const ballGradient = ctx.createRadialGradient(
+        state.gameState.ball.x - 3, state.gameState.ball.y - 3, 0,
+        state.gameState.ball.x, state.gameState.ball.y, state.gameState.ball.radius
+      );
+      ballGradient.addColorStop(0, '#ffffff');
+      ballGradient.addColorStop(1, '#ecf0f1');
+      
+      ctx.fillStyle = ballGradient;
       ctx.beginPath();
       ctx.arc(state.gameState.ball.x, state.gameState.ball.y, state.gameState.ball.radius, 0, Math.PI * 2);
       ctx.fill();
+      
+      // Borda preta da bola
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
 
     // Sem placar / cronômetro desenhados no canvas (fica no HUD inferior)
