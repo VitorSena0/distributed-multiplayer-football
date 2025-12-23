@@ -12,6 +12,8 @@ const defaultBallState = (): Ball => ({
     radius: BALL_RADIUS,
     speedX: 0,
     speedY: 0,
+    lastTouchedBy: null,
+    lastTouchedTeam: null,
 });
 
 // Função que sanitiza o ID da sala para garantir que esteja em um formato válido, ex: "room-1"

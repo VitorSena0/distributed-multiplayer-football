@@ -19,7 +19,7 @@ export function gameLoop(room: Room, io: SocketIOServer): void {
     });
 
     // Colisão jogador–bola
-    Object.values(room.players).forEach((player) => {
+    Object.entries(room.players).forEach(([playerId, player]) => {
         const dx = room.ball.x - player.x;
         const dy = room.ball.y - player.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -38,6 +38,10 @@ export function gameLoop(room: Room, io: SocketIOServer): void {
 
             room.ball.speedX = Math.cos(angle) * 12 + playerVelocity.x;
             room.ball.speedY = Math.sin(angle) * 12 + playerVelocity.y;
+            
+            // Track who last touched the ball
+            room.ball.lastTouchedBy = playerId;
+            room.ball.lastTouchedTeam = player.team;
         }
     });
 
@@ -73,9 +77,18 @@ export function gameLoop(room: Room, io: SocketIOServer): void {
                 room.ball.y < room.height / 2 + GOAL_HEIGHT / 2
             ) { // Verifica se a bola está dentro da área do gol
                 room.score.blue += 1;
+                
+                // Increment goal count for the player who last touched the ball
+                if (room.ball.lastTouchedBy && room.players[room.ball.lastTouchedBy]) {
+                    room.players[room.ball.lastTouchedBy].goals += 1;
+                }
+                
                 room.lastGoalTime = now; // Atualiza o tempo do último gol para evitar múltiplos gols durante o cooldown
                 room.ballResetInProgress = true;
-                io.to(room.id).emit('goalScored', { team: 'blue' });
+                io.to(room.id).emit('goalScored', { 
+                    team: 'blue',
+                    scoredBy: room.ball.lastTouchedBy 
+                });
                 setTimeout(() => {
                     resetBall(room, io);
                 }, room.goalCooldown);
@@ -86,9 +99,18 @@ export function gameLoop(room: Room, io: SocketIOServer): void {
                 room.ball.y < room.height / 2 + GOAL_HEIGHT / 2
             ) { // Verifica se a bola está dentro da área do gol
                 room.score.red += 1;
+                
+                // Increment goal count for the player who last touched the ball
+                if (room.ball.lastTouchedBy && room.players[room.ball.lastTouchedBy]) {
+                    room.players[room.ball.lastTouchedBy].goals += 1;
+                }
+                
                 room.lastGoalTime = now; // Atualiza o tempo do último gol para evitar múltiplos gols durante o cooldown
                 room.ballResetInProgress = true;
-                io.to(room.id).emit('goalScored', { team: 'red' });
+                io.to(room.id).emit('goalScored', { 
+                    team: 'red',
+                    scoredBy: room.ball.lastTouchedBy 
+                });
                 setTimeout(() => {
                     resetBall(room, io);
                 }, room.goalCooldown);

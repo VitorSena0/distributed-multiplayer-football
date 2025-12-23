@@ -44,6 +44,7 @@ export function registerSocketHandlers(io: SocketIOServer): void {
             team,
             // Entradas de movimento começam todas como falsas (parado)
             input: { left: false, right: false, up: false, down: false },
+            goals: 0,
         };
 
         // Informa ao cliente em qual sala ele entrou e quantos jogadores existem

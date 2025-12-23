@@ -16,6 +16,8 @@ export function resetBall(room: Room, io: SocketIOServer): void {
         radius: BALL_RADIUS,
         speedX: 0,
         speedY: 0,
+        lastTouchedBy: null,
+        lastTouchedTeam: null,
     };
 
     room.ballResetInProgress = false; // Reseta o flag de reinício da bola, serve para evitar múltiplos gols durante o cooldown

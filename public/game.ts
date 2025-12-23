@@ -61,6 +61,7 @@ interface Elements {
   scoreboard: HTMLDivElement;
   hudBottom: HTMLDivElement;
   timerBottom: HTMLDivElement;
+  goalScorers: HTMLDivElement;
 }
 
 const elements: Elements = {
@@ -75,6 +76,7 @@ const elements: Elements = {
   scoreboard: document.createElement('div'),
   hudBottom: document.createElement('div'),
   timerBottom: document.createElement('div'),
+  goalScorers: document.createElement('div'),
 };
 
 // ===============================
@@ -97,6 +99,8 @@ interface Ball {
   radius: number;
   speedX: number;
   speedY: number;
+  lastTouchedBy: string | null;
+  lastTouchedTeam: 'red' | 'blue' | null;
 }
 
 interface Score {
@@ -114,6 +118,7 @@ interface Player {
   y: number;
   team: 'red' | 'blue';
   input: Omit<PlayerInput, 'action'>;
+  goals: number;
 }
 
 interface GameState {
@@ -153,7 +158,7 @@ const state: State = {
   inputs: { left: false, right: false, up: false, down: false, action: false },
   gameState: {
     players: {},
-    ball: { x: 400, y: 300, radius: config.ball.radius, speedX: 0, speedY: 0 },
+    ball: { x: 400, y: 300, radius: config.ball.radius, speedX: 0, speedY: 0, lastTouchedBy: null, lastTouchedTeam: null },
     score: { red: 0, blue: 0 },
     teams: { red: [], blue: [] },
     matchTime: 60,
@@ -252,6 +257,10 @@ function initUI(): void {
   elements.ui.appendChild(elements.winnerDisplay);
   elements.ui.appendChild(elements.roomInfo);
   elements.ui.appendChild(elements.restartButton);
+
+  // Goal scorers list
+  elements.goalScorers.id = 'goal-scorers';
+  elements.ui.appendChild(elements.goalScorers);
 
   // HUD inferior
   elements.hudBottom.id = 'hud-bottom';
@@ -436,6 +445,7 @@ const socketHandlers = {
       y: 300,
       team: data.team,
       input: { left: false, right: false, up: false, down: false },
+      goals: 0,
     };
     state.gameState.teams = data.gameState.teams;
     state.canMove = state.gameState.teams.red.length > 0 && state.gameState.teams.blue.length > 0;
@@ -578,6 +588,7 @@ socket.on('ping', (serverTimestamp: number) => {
 function updateUI(): void {
   updateRoomInfoDisplay();
   updateScoreboard();
+  updateGoalScorers();
   if (state.matchEnded) {
     elements.waitingScreen.style.display = 'block';
     elements.waitingScreen.textContent = 'Partida terminada. Aguardando todos jogadores...\n';
@@ -595,6 +606,33 @@ function updateUI(): void {
 function updateScoreboard(): void {
   if (!elements.scoreboard) return;
   elements.scoreboard.textContent = `Red: ${state.gameState.score.red} | Blue: ${state.gameState.score.blue}`;
+}
+
+// Atualiza a lista de artilheiros
+function updateGoalScorers(): void {
+  if (!elements.goalScorers) return;
+  
+  // Get all players with goals
+  const playersWithGoals = Object.entries(state.gameState.players)
+    .filter(([_, player]) => player && player.goals > 0)
+    .map(([id, player]) => ({ id, player }))
+    .sort((a, b) => b.player.goals - a.player.goals); // Sort by goals descending
+  
+  if (playersWithGoals.length === 0) {
+    elements.goalScorers.style.display = 'none';
+    return;
+  }
+  
+  elements.goalScorers.style.display = 'block';
+  
+  let html = '<div style="font-weight: bold; margin-bottom: 5px;">Artilheiros:</div>';
+  playersWithGoals.forEach(({ id, player }) => {
+    const playerName = id.substring(0, 5);
+    const teamColor = player.team === 'red' ? '#ff0000' : '#0000ff';
+    html += `<div style="color: ${teamColor}; margin: 2px 0;">${playerName}: ${player.goals} gol${player.goals > 1 ? 's' : ''}</div>`;
+  });
+  
+  elements.goalScorers.innerHTML = html;
 }
 
 // Desenha o ID de cada jogador acima da cabeça (ajustado ao tamanho do canvas na tela)
@@ -934,10 +972,24 @@ function draw(): void {
 
     // Bola
     if (state.gameState.ball.x >= -50 && state.gameState.ball.x <= config.canvas.width + 50) {
-      ctx.fillStyle = '#ffffff';
+      // Draw ball with team color if touched by a player
+      if (state.gameState.ball.lastTouchedTeam) {
+        ctx.fillStyle = state.gameState.ball.lastTouchedTeam;
+      } else {
+        ctx.fillStyle = '#ffffff';
+      }
       ctx.beginPath();
       ctx.arc(state.gameState.ball.x, state.gameState.ball.y, state.gameState.ball.radius, 0, Math.PI * 2);
       ctx.fill();
+      
+      // Draw white outline for visibility
+      if (state.gameState.ball.lastTouchedTeam) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(state.gameState.ball.x, state.gameState.ball.y, state.gameState.ball.radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
 
     // Sem placar / cronômetro desenhados no canvas (fica no HUD inferior)

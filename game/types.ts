@@ -12,6 +12,7 @@ export interface Player {
     y: number;
     team: 'red' | 'blue';
     input: PlayerInput;
+    goals: number;
 }
 
 // Definição de tipos para a bola
@@ -21,6 +22,8 @@ export interface Ball {
     radius: number;
     speedX: number;
     speedY: number;
+    lastTouchedBy: string | null;
+    lastTouchedTeam: 'red' | 'blue' | null;
 }
 
 // Definição de tipos para o placar
