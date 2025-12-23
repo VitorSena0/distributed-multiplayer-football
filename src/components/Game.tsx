@@ -6,6 +6,7 @@ import GameUI from './GameUI';
 import HUD from './HUD';
 import PlayerIDs from './PlayerIDs';
 import MobileControls from './MobileControls';
+import Toast from './Toast';
 
 const Game: React.FC = () => {
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
@@ -46,8 +47,10 @@ const Game: React.FC = () => {
     ping,
     matchEnded,
     canMove,
+    notification,
     sendInput,
     requestRestart,
+    clearNotification,
   } = useSocket(requestedRoomId);
 
   // Determine if waiting for players
@@ -159,8 +162,9 @@ const Game: React.FC = () => {
   useEffect(() => {
     if (canvasWrapperRef.current) {
       const canvas = canvasWrapperRef.current.querySelector('canvas');
-      if (canvas && canvasRef.current !== canvas) {
-        (canvasRef as any).current = canvas;
+      if (canvas) {
+        // Type-safe way to assign canvas element
+        Object.assign(canvasRef, { current: canvas });
       }
     }
   }, []);
@@ -205,6 +209,10 @@ const Game: React.FC = () => {
         onInputChange={handleMobileInputChange}
         isMobile={isMobile}
       />
+
+      {notification && (
+        <Toast message={notification} onClose={clearNotification} />
+      )}
     </div>
   );
 };

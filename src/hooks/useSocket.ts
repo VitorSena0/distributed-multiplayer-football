@@ -12,8 +12,10 @@ export interface UseSocketReturn {
   ping: number | null;
   matchEnded: boolean;
   canMove: boolean;
+  notification: string | null;
   sendInput: (inputs: PlayerInput) => void;
   requestRestart: () => void;
+  clearNotification: () => void;
 }
 
 const initialGameState: GameState = {
@@ -37,6 +39,7 @@ export const useSocket = (requestedRoomId: string | null): UseSocketReturn => {
   const [ping, setPing] = useState<number | null>(null);
   const [matchEnded, setMatchEnded] = useState(false);
   const [canMove, setCanMove] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
     const newSocket = io(window.location.origin, {
@@ -68,7 +71,7 @@ export const useSocket = (requestedRoomId: string | null): UseSocketReturn => {
 
     // Room full
     newSocket.on('roomFull', (data: any) => {
-      alert(`Sala ${data.roomId} está cheia (${data.capacity} jogadores). Escolha outra sala.`);
+      setNotification(`Sala ${data.roomId} está cheia (${data.capacity} jogadores). Escolha outra sala.`);
       setCanMove(false);
     });
 
@@ -127,7 +130,7 @@ export const useSocket = (requestedRoomId: string | null): UseSocketReturn => {
     newSocket.on('teamChanged', (data: any) => {
       setCurrentTeam(data.newTeam);
       setGameState(data.gameState);
-      alert(`Você foi movido para o time ${data.newTeam.toUpperCase()}`);
+      setNotification(`Você foi movido para o time ${data.newTeam.toUpperCase()}`);
     });
 
     // Player disconnected
@@ -185,6 +188,10 @@ export const useSocket = (requestedRoomId: string | null): UseSocketReturn => {
     }
   }, [socket]);
 
+  const clearNotification = useCallback(() => {
+    setNotification(null);
+  }, []);
+
   return {
     socket,
     gameState,
@@ -195,7 +202,9 @@ export const useSocket = (requestedRoomId: string | null): UseSocketReturn => {
     ping,
     matchEnded,
     canMove,
+    notification,
     sendInput,
     requestRestart,
+    clearNotification,
   };
 };
