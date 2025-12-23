@@ -1014,13 +1014,11 @@ function draw(): void {
       ballGradient.addColorStop(1, '#ecf0f1');
       
       ctx.fillStyle = ballGradient;
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(state.gameState.ball.x, state.gameState.ball.y, state.gameState.ball.radius, 0, Math.PI * 2);
       ctx.fill();
-      
-      // Borda preta da bola
-      ctx.strokeStyle = '#2c3e50';
-      ctx.lineWidth = 2;
       ctx.stroke();
     }
 
