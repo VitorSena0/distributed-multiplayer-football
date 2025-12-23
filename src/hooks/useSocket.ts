@@ -90,7 +90,7 @@ export const useSocket = (requestedRoomId: string | null): UseSocketReturn => {
         },
         teams: data.gameState.teams,
       }));
-      setRoomPlayerCount(Object.keys(data.gameState.teams.red).length + Object.keys(data.gameState.teams.blue).length);
+      setRoomPlayerCount(data.gameState.teams.red.length + data.gameState.teams.blue.length);
     });
 
     // Update handler
