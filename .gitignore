@@ -27,3 +27,6 @@ dist/
 public/dist/
 *.tsbuildinfo
 
+# Vite
+.vite
+
