@@ -104,12 +104,6 @@ canvas {
     animation: pulse-winner 2s infinite;
 }
 
-#winner-display.show {
-    opacity: 1;
-    display: block;
-    transform: scale(1);
-}
-
 #winner-display.hidden {
     opacity: 0;
     pointer-events: none;

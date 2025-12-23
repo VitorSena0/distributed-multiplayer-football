@@ -852,21 +852,20 @@ function draw(): void {
       ctx.fill();
     }
 
-    // Linhas do campo com brilho (otimizado)
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 5;
+    // Linhas do campo com brilho (otimizado - usando rgba)
+    ctx.lineWidth = 4;
     ctx.setLineDash([]);
     const padding = 0;
     const innerWidth = config.canvas.width - padding * 2;
     const innerHeight = config.canvas.height - padding * 2;
 
     // Linha de brilho (mais grossa, semitransparente)
-    ctx.globalAlpha = 0.3;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.lineWidth = 8;
     ctx.strokeRect(padding, padding, innerWidth, innerHeight);
     
     // Linha principal
-    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 4;
     ctx.strokeRect(padding, padding, innerWidth, innerHeight);
 
@@ -876,14 +875,14 @@ function draw(): void {
     ctx.lineTo(config.canvas.width / 2, config.canvas.height - padding);
     ctx.stroke();
 
-    // Círculo central
-    ctx.globalAlpha = 0.3;
+    // Círculo central com brilho
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.lineWidth = 7;
     ctx.beginPath();
     ctx.arc(config.canvas.width / 2, config.canvas.height / 2, 60, 0, Math.PI * 2);
     ctx.stroke();
     
-    ctx.globalAlpha = 1.0;
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc(config.canvas.width / 2, config.canvas.height / 2, 60, 0, Math.PI * 2);
@@ -950,10 +949,10 @@ function draw(): void {
     // Jogadores com gradiente (otimizado - sombra simplificada)
     for (const [id, player] of Object.entries(state.gameState.players)) {
       if (player) {
-        ctx.globalAlpha = state.matchEnded && !state.canMove ? 0.7 : 1.0;
+        const isDimmed = state.matchEnded && !state.canMove;
         
         // Sombra simplificada (círculo escuro abaixo)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillStyle = isDimmed ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.3)';
         ctx.beginPath();
         ctx.arc(player.x + 2, player.y + 4, config.player.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -965,19 +964,17 @@ function draw(): void {
         );
         
         if (player.team === 'red') {
-          playerGradient.addColorStop(0, '#e74c3c');
-          playerGradient.addColorStop(1, '#c0392b');
+          playerGradient.addColorStop(0, isDimmed ? 'rgba(231, 76, 60, 0.7)' : '#e74c3c');
+          playerGradient.addColorStop(1, isDimmed ? 'rgba(192, 57, 43, 0.7)' : '#c0392b');
         } else {
-          playerGradient.addColorStop(0, '#3498db');
-          playerGradient.addColorStop(1, '#2980b9');
+          playerGradient.addColorStop(0, isDimmed ? 'rgba(52, 152, 219, 0.7)' : '#3498db');
+          playerGradient.addColorStop(1, isDimmed ? 'rgba(41, 128, 185, 0.7)' : '#2980b9');
         }
         
         ctx.fillStyle = playerGradient;
         ctx.beginPath();
         ctx.arc(player.x, player.y, config.player.radius, 0, Math.PI * 2);
         ctx.fill();
-        
-        ctx.globalAlpha = 1.0;
 
         // Destaque para o próprio jogador (brilho simplificado)
         if (id === socket.id) {
