@@ -3,6 +3,7 @@ import { MATCH_DURATION } from './constants';
 import { buildGameState } from './roomManager';
 import { resetBall } from './ball';
 import { Room, Player } from './types';
+import { AuthService } from '../services/authService';
 
 function balanceTeams(room: Room, io: SocketIOServer): void {
     const redCount = room.teams.red.length;
@@ -134,6 +135,9 @@ export function updateTimer(room: Room, io: SocketIOServer): void {
                 ? 'blue'
                 : 'draw';
 
+        // Salva estatísticas dos jogadores registrados
+        saveMatchStats(room, winner);
+
         Object.keys(room.players).forEach((id) => {
             room.players[id].x = -100;
             room.players[id].y = -100;
@@ -146,4 +150,52 @@ export function updateTimer(room: Room, io: SocketIOServer): void {
     }
 
     io.to(room.id).emit('timerUpdate', { matchTime: room.matchTime });
+}
+
+// Função auxiliar para salvar estatísticas dos jogadores
+async function saveMatchStats(room: Room, winner: 'red' | 'blue' | 'draw'): Promise<void> {
+    const redPlayers = room.teams.red;
+    const bluePlayers = room.teams.blue;
+    
+    // Salva estatísticas do time vermelho
+    for (const playerId of redPlayers) {
+        const player = room.players[playerId];
+        if (player && player.userId) {
+            const goalsScored = player.goals;
+            const goalsConceded = room.score.blue;
+            let result: 'win' | 'loss' | 'draw';
+            
+            if (winner === 'red') result = 'win';
+            else if (winner === 'blue') result = 'loss';
+            else result = 'draw';
+            
+            try {
+                await AuthService.updateStats(player.userId, goalsScored, goalsConceded, result);
+                console.log(`Estatísticas atualizadas para usuário ${player.userId}: ${goalsScored} gols`);
+            } catch (error) {
+                console.error(`Erro ao salvar estatísticas do usuário ${player.userId}:`, error);
+            }
+        }
+    }
+    
+    // Salva estatísticas do time azul
+    for (const playerId of bluePlayers) {
+        const player = room.players[playerId];
+        if (player && player.userId) {
+            const goalsScored = player.goals;
+            const goalsConceded = room.score.red;
+            let result: 'win' | 'loss' | 'draw';
+            
+            if (winner === 'blue') result = 'win';
+            else if (winner === 'red') result = 'loss';
+            else result = 'draw';
+            
+            try {
+                await AuthService.updateStats(player.userId, goalsScored, goalsConceded, result);
+                console.log(`Estatísticas atualizadas para usuário ${player.userId}: ${goalsScored} gols`);
+            } catch (error) {
+                console.error(`Erro ao salvar estatísticas do usuário ${player.userId}:`, error);
+            }
+        }
+    }
 }

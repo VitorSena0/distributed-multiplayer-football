@@ -6,8 +6,14 @@ import { rooms } from './game/roomManager';
 import { gameLoop } from './game/gameLoop';
 import { updateTimer } from './game/match';
 import { registerSocketHandlers } from './game/socketHandlers';
+import authRoutes from './routes/authRoutes';
 
-const app = express(); // Cria uma aplicação Express, na qual a variável app recebe todas as funcionalidades do Express 
+const app = express(); // Cria uma aplicação Express, na qual a variável app recebe todas as funcionalidades do Express
+
+// Middleware para processar JSON
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const server = http.createServer(app); // Cria um servidor HTTP usando a aplicação Express
 const io = new SocketIOServer(server, { // Cria uma instância do Socket.IO vinculada ao servidor HTTP
     cors: {
@@ -16,6 +22,9 @@ const io = new SocketIOServer(server, { // Cria uma instância do Socket.IO vinc
     },
     allowEIO3: true, // Habilita compatibilidade com clientes que usam a versão 3 do Engine.IO
 });
+
+// Rotas da API de autenticação
+app.use('/api/auth', authRoutes);
 
 app.use(express.static('public')); // Serve arquivos estáticos da pasta 'public'
 

@@ -15,6 +15,119 @@ body {
     box-sizing: border-box;
 }
 
+/* Ranking lateral */
+#ranking-panel {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    width: 420px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    padding: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+#ranking-panel h3 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: #ffd700;
+    font-size: 1.3em;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+#ranking-list {
+    font-size: 0.95em;
+}
+
+.ranking-header {
+    display: grid;
+    grid-template-columns: 30px 1fr 28px 28px 28px 28px 28px;
+    gap: 4px;
+    padding: 8px 5px;
+    border-bottom: 2px solid #667eea;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ffd700;
+    font-size: 0.8em;
+}
+
+.rank-col, .player-col, .stats-col {
+    text-align: center;
+}
+
+.player-col {
+    text-align: left;
+}
+
+.ranking-item {
+    display: grid;
+    grid-template-columns: 30px 1fr 28px 28px 28px 28px 28px;
+    gap: 4px;
+    padding: 10px 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
+}
+
+.ranking-item:last-child {
+    border-bottom: none;
+}
+
+.ranking-item .rank {
+    font-weight: bold;
+    color: #ffd700;
+    text-align: center;
+}
+
+.ranking-item .player-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #fff;
+    text-align: left;
+}
+
+.ranking-item .wins {
+    color: #4CAF50;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ranking-item .losses {
+    color: #FF6B6B;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ranking-item .draws {
+    color: #FFC107;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ranking-item .goals {
+    color: #2196F3;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ranking-item .matches {
+    color: #9C27B0;
+    font-weight: bold;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    #ranking-panel {
+        width: 180px;
+        font-size: 0.85em;
+    }
+}
+
 #game-container {
     position: relative;
     display: flex;
@@ -23,6 +136,22 @@ body {
     width: min(100vw, 900px);
     max-width: 100vw;
     gap: 10px;
+    margin-left: 240px; /* Espaço para o ranking */
+}
+
+@media (max-width: 768px) {
+    #game-container {
+        margin-left: 0;
+    }
+    
+    #ranking-panel {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto 10px;
+    }
 }
 
 #game-canvas-wrapper {
