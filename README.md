@@ -1,9 +1,11 @@
 # Multiplayer Soccer
 
-Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO** e **TypeScript**.  
+Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO**, **PostgreSQL** e **TypeScript**.  
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
 
 > **📝 Nota sobre TypeScript**: Este projeto foi completamente refatorado de JavaScript para TypeScript para melhorar a manutenibilidade do código e proporcionar uma melhor experiência de desenvolvimento com tipagem estática. Todos os arquivos `.js` foram convertidos para `.ts` com tipos bem definidos para variáveis, funções e estruturas de dados.
+
+> **🔐 Sistema de Autenticação**: O jogo agora possui um sistema completo de login e registro com PostgreSQL 17, onde os jogadores podem criar contas, fazer login ou jogar como convidado. As estatísticas de partidas completas (gols marcados, gols sofridos, vitórias, derrotas, empates) são salvas automaticamente e exibidas em um ranking global.
 
 ---
 
@@ -12,6 +14,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 - [Multiplayer Soccer](#multiplayer-soccer)
   - [Índice](#índice)
   - [Visão Geral](#visão-geral)
+  - [Sistema de Autenticação e Estatísticas](#sistema-de-autenticação-e-estatísticas)
   - [Demonstração](#demonstração)
   - [Arquitetura](#arquitetura)
   - [Recursos do Jogo](#recursos-do-jogo)
@@ -43,21 +46,65 @@ O servidor Node é responsável por:
 - Rodar o **game loop** (atualização de posições, colisões, placar).
 - Controlar o **temporizador da partida** e o fluxo de início/fim/reinício.
 - Enviar para cada cliente o **estado oficial** da partida (snapshot do jogo).
+- **Autenticar usuários** e salvar **estatísticas de partidas** no PostgreSQL.
 
 O cliente web (HTML/Canvas/JS) renderiza o campo, jogadores, bola, placar e cronômetro, além de enviar os comandos de input (setas/WASD, etc.) para o servidor via Socket.IO.
 
 ---
 
-## Demonstração
+## Sistema de Autenticação e Estatísticas
 
-Exemplos de deploy já usados (podem não estar ativos no momento):
+### 🔐 Autenticação
 
-- Render: `https://multiplayer-soccer.onrender.com`
-- Histórico de endpoints úteis (ngrok / IPs de testes):
-	- `191.34.226.49`
-	- `https://4726-2804-1b1-1293-7fcc-2167-4b14-41da-1f38.ngrok-free.app`
+O jogo possui três modos de acesso:
 
-Para testar localmente, veja a seção [Instalação e Execução Local](#instalação-e-execução-local).
+1. **Login**: Usuários registrados fazem login com usuário e senha
+2. **Registro**: Novos jogadores criam uma conta com usuário único e senha criptografada (bcrypt)
+3. **Convidado**: Jogar sem criar conta (estatísticas não são salvas)
+
+### 📊 Estatísticas Salvas
+
+Para jogadores registrados, o sistema salva automaticamente após cada partida completa:
+
+- **Gols marcados**: Total de gols feitos pelo jogador
+- **Gols sofridos**: Total de gols que o time do jogador levou
+- **Saldo de gols**: Diferença entre gols marcados e sofridos
+- **Vitórias**: Quantidade de partidas vencidas
+- **Derrotas**: Quantidade de partidas perdidas
+- **Empates**: Quantidade de partidas empatadas
+- **Partidas jogadas**: Total de partidas completas
+
+### 🏆 Ranking Global
+
+Um ranking TOP 10 é exibido no lado esquerdo da tela do jogo, mostrando:
+- Posição no ranking (#)
+- Nome do jogador
+- Vitórias (VIT)
+- Derrotas (DER)
+- Empates (EMP)
+- Saldo de gols (SG)
+- Partidas jogadas (PJ)
+
+O ranking é ordenado por: Vitórias > Saldo de Gols > Total de Gols Marcados
+
+### 🎮 Identificação de Jogadores
+
+- **Usuários registrados**: O nome de usuário é exibido acima do jogador no jogo
+- **Convidados**: Aparecem como "Convidado 1", "Convidado 2", etc. (até "Convidado 6" se todos forem convidados)
+- **Seu jogador**: Destacado com cor amarela pulsante para fácil identificação
+
+### 🔒 Segurança
+
+- **Proteção de sessão**: Um usuário só pode estar logado em uma sessão por vez. Se tentar fazer login em outro dispositivo/aba, a sessão anterior é desconectada automaticamente
+- **Mensagem de segurança**: Interface de registro informa que os dados são protegidos com bcrypt (hash de senha) e JWT (autenticação segura)
+- **Armazenamento temporário**: Dados de sessão são armazenados em `sessionStorage` (não persistem após fechar o navegador)
+
+### 🛠️ Tecnologias de Autenticação
+
+- **PostgreSQL 17**: Banco de dados relacional
+- **bcryptjs**: Criptografia de senhas
+- **jsonwebtoken (JWT)**: Tokens de autenticação
+- **RESTful API**: Endpoints para login, registro, estatísticas e ranking
 
 ---
 
@@ -96,11 +143,17 @@ Para testar localmente, veja a seção [Instalação e Execução Local](#instal
 	- Express
 	- Socket.IO
 	- TypeScript
+	- PostgreSQL 17
+	- bcryptjs (criptografia de senhas)
+	- jsonwebtoken (JWT para autenticação)
 - **Cliente**:
 	- HTML5
 	- CSS3
 	- TypeScript (compilado para JavaScript)
 	- Canvas / DOM
+- **Banco de Dados**:
+	- PostgreSQL 17
+	- pg (driver Node.js)
 - **Infra / Deploy**:
 	- Docker / Docker Compose
 	- Nginx (como proxy reverso)
@@ -114,7 +167,9 @@ Para testar localmente, veja a seção [Instalação e Execução Local](#instal
 Para rodar **localmente**:
 
 - **Node.js 18+** e **npm**
+- **PostgreSQL 17** (ou usar Docker)
 - Porta **TCP 3000** liberada (ou configure outra via variável `PORT`)
+- Porta **TCP 5432** liberada para PostgreSQL (se rodando localmente)
 
 Para usar **Docker**:
 
@@ -131,12 +186,54 @@ Para seguir o guia de deploy na **AWS EC2**:
 
 ## Instalação e Execução Local
 
+### 1. Instalar Dependências
+
 Na raiz do projeto:
 
 ```bash
-# Instalar dependências
 npm install
+```
 
+### 2. Configurar Banco de Dados
+
+#### Opção A: Usando Docker (Recomendado)
+
+Execute o script de inicialização:
+
+```bash
+./scripts/init-db.sh
+```
+
+Este script irá:
+- Iniciar um container PostgreSQL 17
+- Criar o banco de dados `football_db`
+- Executar o schema SQL para criar as tabelas
+
+#### Opção B: PostgreSQL Local
+
+Se você tem PostgreSQL instalado localmente:
+
+```bash
+# Criar banco de dados
+createdb football_db
+
+# Executar schema
+psql -d football_db -f database/schema.sql
+```
+
+### 3. Configurar Variáveis de Ambiente
+
+Copie o arquivo de exemplo e ajuste as configurações:
+
+```bash
+cp .env.example .env
+```
+
+Edite o arquivo `.env` conforme necessário. Para desenvolvimento local com Docker, os valores padrão já funcionam.
+
+### 4. Compilar e Executar
+
+```bash
 # Compilar o TypeScript
 npm run build
 
@@ -147,20 +244,27 @@ npm run start
 Ou para desenvolvimento:
 
 ```bash
-# Instalar dependências
-npm install
-
 # Executar em modo desenvolvimento (com ts-node)
 npm run dev
 ```
 
 O servidor, por padrão, escuta em `PORT` (se definida) ou `3000`.
 
+### 5. Acessar o Jogo
+
 Abra no navegador:
 
-- `http://localhost:3000`
+- `http://localhost:3000` - Redireciona para a tela de login
+- `http://localhost:3000/auth.html` - Tela de login/registro
+- `http://localhost:3000/index.html` - Jogo (requer autenticação)
 
-O front-end é servido automaticamente a partir da pasta `public/`.
+### API Endpoints
+
+- `POST /api/auth/register` - Registrar novo usuário
+- `POST /api/auth/login` - Fazer login
+- `POST /api/auth/verify` - Verificar token JWT
+- `GET /api/auth/stats/:userId` - Buscar estatísticas de um usuário
+- `GET /api/auth/ranking?limit=10` - Buscar ranking global
 
 ---
 
@@ -279,7 +383,8 @@ Multiplayer-Soccer/
 ├─ tsconfig.json          # Configuração TypeScript para o servidor
 ├─ tsconfig.client.json   # Configuração TypeScript para o cliente
 ├─ dockerfile             # Dockerfile do app Node
-├─ docker-compose.yml     # Compose para subir app + nginx
+├─ docker-compose.yml     # Compose para subir app + nginx + postgres
+├─ .env.example           # Exemplo de variáveis de ambiente
 ├─ README.md              # Este arquivo
 │
 ├─ game/                  # Lado servidor: lógica de jogo (TypeScript)
@@ -291,13 +396,32 @@ Multiplayer-Soccer/
 │  ├─ gameLoop.ts
 │  └─ socketHandlers.ts
 │
+├─ database/              # Esquema e configuração do banco de dados
+│  ├─ schema.sql         # Definição de tabelas PostgreSQL
+│  └─ db.ts              # Configuração da conexão com o banco
+│
+├─ services/              # Serviços da aplicação
+│  └─ authService.ts     # Lógica de autenticação e estatísticas
+│
+├─ routes/                # Rotas da API REST
+│  └─ authRoutes.ts      # Endpoints de autenticação
+│
+├─ scripts/               # Scripts auxiliares
+│  └─ init-db.sh         # Script para inicializar banco de dados
+│
 ├─ dist/                  # Código JavaScript compilado do servidor
 │  ├─ game-server.js
-│  └─ game/
+│  ├─ game/
+│  ├─ database/
+│  ├─ services/
+│  └─ routes/
 │
 ├─ public/                # Lado cliente (front-end)
-│  ├─ index.html
-│  ├─ style.css
+│  ├─ index.html         # Página principal do jogo
+│  ├─ auth.html          # Página de login/registro
+│  ├─ style.css          # Estilos do jogo
+│  ├─ auth-style.css     # Estilos da autenticação
+│  ├─ auth.js            # JavaScript da autenticação
 │  ├─ game.ts            # Código TypeScript do cliente
 │  └─ dist/              # Código JavaScript compilado do cliente
 │     └─ game.js

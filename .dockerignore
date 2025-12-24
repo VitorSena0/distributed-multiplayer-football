@@ -1,7 +1,88 @@
+# Dependências (serão instaladas no container)
 node_modules
 npm-debug.log
-Dockerfile
-.dockerignore
+yarn-error.log
+package-lock.json
+
+# Git
 .git
 .gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+.dockerignore.backup
+
+# Documentação
+README.md
+CHANGELOG.md
+QUICKSTART.md
+DATABASE.md
+API.md
+DEPLOY.md
+*.md
+
+# Ambiente e configuração local
+.env
+.env.local
+.env.*.local
 ngrok.yml
+
+# Build local (será rebuildo no container)
+dist/
+public/dist/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# IDE e editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testes e coverage
+coverage/
+.nyc_output/
+*.test.ts
+*.spec.ts
+__tests__/
+test/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Database data (não deve ir pro container)
+pg_data/
+postgres-data/
+*.db
+*.sqlite
+*.sql.backup
+
+# Temporários
+tmp/
+temp/
+*.tmp
+*.backup
+*.bak
+
+# Scripts de desenvolvimento local
+scripts/dev-*.sh
+scripts/local-*.sh
+
+# Certificados locais
+*.pem
+*.key
+*.crt
+ssl/

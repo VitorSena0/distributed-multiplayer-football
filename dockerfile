@@ -14,6 +14,9 @@ RUN npm install
 COPY tsconfig*.json ./
 COPY game-server.ts ./
 COPY game ./game
+COPY database ./database
+COPY services ./services
+COPY routes ./routes
 COPY public ./public
 
 # Compila o TypeScript
