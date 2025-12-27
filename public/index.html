@@ -48,6 +48,7 @@
 
           if (data.success && data.ranking) {
             const rankingList = document.getElementById('ranking-list');
+            const rankingPanel = document.getElementById('ranking-panel');
             if (rankingList) {
               rankingList.innerHTML = `
                 <div class="ranking-header">
@@ -71,13 +72,22 @@
                   </div>
                 `).join('')}
               `;
+              // Mostrar o painel após carregar os dados
+              if (rankingPanel) {
+                rankingPanel.style.display = 'block';
+              }
             }
           }
         } catch (error) {
           console.error('Erro ao carregar ranking:', error);
           const rankingList = document.getElementById('ranking-list');
+          const rankingPanel = document.getElementById('ranking-panel');
           if (rankingList) {
             rankingList.innerHTML = '<p style="color: #888;">Erro ao carregar</p>';
+          }
+          // Mostrar painel mesmo com erro para feedback ao usuário
+          if (rankingPanel) {
+            rankingPanel.style.display = 'block';
           }
         }
       }
