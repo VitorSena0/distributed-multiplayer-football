@@ -42,7 +42,8 @@ function saveUserData(userId, username, token) {
     sessionStorage.setItem('isGuest', 'false');
 }
 
-function redirectToGame() {
+// Redireciona para a página do jogo
+function redirectToGame() { 
     window.location.href = '/index.html';
 }
 
@@ -53,19 +54,19 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
 
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
-
+    // Realiza a requisição de login, verifica a resposta e salva os dados do usuário na sessão
     try {
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('/api/auth/login', { // O fetch envia uma requisição POST para o endpoint de login da API
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json', // Define o cabeçalho da requisição para indicar que o corpo é JSON
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ username, password }), // Converte os dados do formulário em uma string JSON para enviar no corpo da requisição
         });
 
-        const data = await response.json();
+        const data = await response.json(); // Aguarda a resposta da API e converte para JSON
 
-        if (data.success) {
+        if (data.success) { // Se o login for bem-sucedido, salva os dados do usuário na sessão e redireciona para o jogo
             saveUserData(data.userId, data.username, data.token);
             showMessage('Login realizado com sucesso! Redirecionando...', 'success');
             setTimeout(redirectToGame, 1500);

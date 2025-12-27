@@ -534,21 +534,95 @@ Fluxo típico:
 
 ## Variáveis de Ambiente
 
-Variáveis utilizadas:
+### Arquivo `.env`
 
-- `PORT`:
-	- Porta na qual o servidor Node/Express/Socket.IO irá escutar.
-	- Padrão: `3000` se não definido.
-
-Exemplos:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
 ```bash
-# Rodar em outra porta localmente
-PORT=4000 node game-server.js
+# Configuração do Banco de Dados PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=football_db
+DB_USER=postgres
+DB_PASSWORD=postgres
 
-# Com Docker
-docker run --rm -e PORT=3000 -p 3000:3000 multiplayer-soccer-app
+# Configuração JWT (MUDE ESTE SECRET EM PRODUÇÃO! Consulte a seção de Segurança abaixo para gerar um secret forte com o comando crypto.)
+JWT_SECRET=your-secure-jwt-secret-here # node -e "console.log(require('crypto').randomBytes(64).toString('hex'))" Gera um secrete forte
+
+# Porta do servidor
+PORT=3000
 ```
+
+### Instalação do `dotenv`
+
+```bash
+npm install dotenv
+```
+
+Carregue as variáveis no início do seu arquivo principal:
+
+```typescript
+import 'dotenv/config';
+// resto do código...
+```
+
+### Variáveis Principais
+
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `DB_HOST` | `localhost` | Host do PostgreSQL |
+| `DB_PORT` | `5432` | Porta do PostgreSQL |
+| `DB_NAME` | `football_db` | Nome do banco de dados |
+| `DB_USER` | `postgres` | Usuário do PostgreSQL |
+| `DB_PASSWORD` | `postgres` | Senha do PostgreSQL |
+| `JWT_SECRET` | (obrigatório) | Chave secreta para assinar tokens JWT |
+| `PORT` | `3000` | Porta do servidor Node |
+
+### ⚠️ Segurança
+
+- **NUNCA** versione o arquivo `.env` no Git
+- Adicione `.env` ao `.gitignore`
+- Em produção, use senhas fortes e chaves JWT geradas aleatoriamente
+- Gerar JWT_SECRET seguro: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+
+### Exemplos de Uso
+
+```bash
+# Rodar localmente (usa valores do .env)
+npm start
+
+# Rodar em outra porta
+PORT=4000 npm start
+
+# Com Docker Compose (lê variáveis do .env)
+docker-compose up
+```
+
+---
+
+## 🔐 Relatório de Segurança
+
+Este projeto implementa boas práticas de segurança. Consulte o arquivo [SECURITY_REPORT.md](SECURITY_REPORT.md) para:
+
+- **Análise de SQL Injection**: Status ✅ SEGURO (prepared statements)
+- **Autenticação JWT**: Implementação segura com expiração
+- **Criptografia de Senha**: bcryptjs com 10 salt rounds
+- **Variáveis de Ambiente**: Separação de credenciais sensíveis
+- **Checklist de Produção**: Guia completo para deploy em AWS EC2
+- **Geração de Chaves Seguras**: Como criar JWT_SECRET e senhas fortes
+- **Configuração Docker**: Segurança em desenvolvimento vs produção
+
+### Resumo de Riscos Mitigados
+
+| Risco | Status |
+|-------|--------|
+| SQL Injection | ✅ Mitigado (prepared statements) |
+| Senha padrão em produção | ⚠️ Precisa configuração |
+| JWT Secret exposto | ✅ Corrigido (leitura de `.env`) |
+| Porta do banco exposta | ⚠️ Remover em produção |
+| `.env` versionado | ✅ Prevenido (`.gitignore`) |
+
+Para mais detalhes, **[leia o relatório completo](SECURITY_REPORT.md)**.
 
 ---
 

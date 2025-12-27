@@ -90,23 +90,131 @@ WHERE user_id = $7;
 4. **Partidas completas**: Estatísticas só são atualizadas quando a partida chega ao final (matchTime = 0)
 5. **Convidados**: Jogadores que entram como convidados não têm `user_id` e suas estatísticas não são salvas
 
+## Acessando o Banco de Dados no Docker
+
+### 1. Conectar ao container do PostgreSQL
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db
+```
+
+**Dentro do container PostgreSQL:**
+- Sair: `\q`
+- Listar tabelas: `\dt`
+- Descrever tabela: `\d nome_da_tabela`
+
+### 2. Verificar tabelas e dados
+
+```bash
+# Conectar ao banco
+docker-compose exec postgres psql -U postgres -d football_db
+
+# Dentro do psql, executar:
+\dt                          # Lista todas as tabelas
+\d users                      # Descreve a estrutura da tabela users
+\d player_stats               # Descreve a estrutura de player_stats
+```
+
+### 3. Ver todos os usuários
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "SELECT id, username, created_at FROM users;"
+```
+
+### 4. Ver estatísticas de todos os jogadores
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+SELECT u.id, u.username, ps.wins, ps.losses, ps.draws, ps.goals_difference, ps.matches_played, ps.updated_at
+FROM player_stats ps
+JOIN users u ON u.id = ps.user_id
+ORDER BY ps.wins DESC;"
+```
+
+### 5. Ver ranking TOP 10
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+SELECT u.username, ps.wins, ps.losses, ps.draws, ps.goals_difference, ps.total_goals_scored, ps.matches_played
+FROM player_stats ps
+JOIN users u ON u.id = ps.user_id
+WHERE ps.matches_played > 0
+ORDER BY ps.wins DESC, ps.goals_difference DESC
+LIMIT 10;"
+```
+
+### 6. Ver estatísticas de um usuário específico
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+SELECT u.username, ps.*
+FROM player_stats ps
+JOIN users u ON u.id = ps.user_id
+WHERE u.username = 'seu_usuario';"
+```
+
+### 7. Ver quantidade de usuários e estatísticas
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+SELECT (SELECT COUNT(*) FROM users) as total_usuarios, 
+       (SELECT COUNT(*) FROM player_stats) as total_stats,
+       (SELECT COUNT(*) FROM player_stats WHERE matches_played > 0) as usuarios_com_partidas;"
+```
+
+### 8. Executar comando SQL completo em um arquivo
+
+```bash
+# Criar arquivo com suas queries
+cat > query.sql << EOF
+SELECT * FROM users;
+SELECT * FROM player_stats;
+EOF
+
+# Executar o arquivo
+docker-compose exec -T postgres psql -U postgres -d football_db -f /dev/stdin < query.sql
+```
+
+### 9. Ver logs do PostgreSQL
+
+```bash
+docker-compose logs postgres
+```
+
+### 10. Verificar espaço em disco do banco
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
+FROM pg_tables
+WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;"
+```
+
 ## Backup e Manutenção
 
 ### Backup completo
 
 ```bash
-pg_dump -U postgres football_db > backup.sql
+docker-compose exec postgres pg_dump -U postgres football_db > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+### Backup para arquivo dentro do container
+
+```bash
+docker-compose exec postgres pg_dump -U postgres football_db > /tmp/backup.sql
 ```
 
 ### Restaurar backup
 
 ```bash
-psql -U postgres football_db < backup.sql
+docker-compose exec -T postgres psql -U postgres football_db < backup.sql
 ```
 
 ### Resetar estatísticas de um usuário
 
-```sql
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
 UPDATE player_stats 
 SET total_goals_scored = 0,
     total_goals_conceded = 0,
@@ -116,12 +224,20 @@ SET total_goals_scored = 0,
     draws = 0,
     matches_played = 0,
     updated_at = CURRENT_TIMESTAMP
-WHERE user_id = $1;
+WHERE user_id = 1;"
 ```
 
 ### Deletar usuário e suas estatísticas
 
-```sql
-DELETE FROM users WHERE id = $1;
--- player_stats é deletado automaticamente devido ao ON DELETE CASCADE
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+DELETE FROM users WHERE id = 1;"
+```
+
+### Limpar todos os dados (CUIDADO!)
+
+```bash
+docker-compose exec postgres psql -U postgres -d football_db -c "
+TRUNCATE player_stats CASCADE;
+TRUNCATE users CASCADE;"
 ```

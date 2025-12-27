@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+// Configuração do Pool de conexões, utilizando variáveis de ambiente ou valores padrão
 const pool = new Pool({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),

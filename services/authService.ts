@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../database/db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'seu_secret_super_seguro_mude_em_producao';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-default-secret-key';
 const SALT_ROUNDS = 10;
 
 export interface User {

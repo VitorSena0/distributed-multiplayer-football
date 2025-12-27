@@ -2,28 +2,100 @@
 node_modules/
 npm-debug.log*
 yarn-error.log*
-pnpm-lock.yaml # se não estiver usando
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
 
 # Logs
-logs
+logs/
 *.log
 logs/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Ambiente/variáveis
 .env
 .env.local
 .env.*.local
-ngrok.yml  # se contiver token/chave sensível
+.env.production
+.env.development
+ngrok.yml
 
 # Arquivos de sistema
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
 
 # Docker
 *.pid
+docker-compose.override.yml
+.dockerignore.backup
 
 # TypeScript
 dist/
 public/dist/
 *.tsbuildinfo
+*.tsc
+
+# Build
+build/
+out/
+
+# Coverage e testes
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# Temporários
+tmp/
+temp/
+*.tmp
+
+# PostgreSQL/Database
+*.sql.backup
+pg_data/
+postgres-data/
+*.db
+*.sqlite
+
+# Backup
+*.backup
+*.bak
+
+# Editor
+*.sublime-project
+*.sublime-workspace
+.vscode/settings.json
+
+# MacOS
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.Trash-*
+.nfs*
+
+# Session Storage (se houver arquivos de teste)
+sessionstorage/
+
+# Certificados e chaves
+*.pem
+*.key
+*.crt
+*.p12
+ssl/
 

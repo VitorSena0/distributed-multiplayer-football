@@ -1,6 +1,7 @@
-import { Router, Request, Response } from 'express';
-import { AuthService } from '../services/authService';
+import { Router, Request, Response } from 'express'; // Importa o roteador do Express e os tipos Request e Response
+import { AuthService } from '../services/authService'; // Importa o serviço de autenticação
 
+// Cria um roteador Express para gerenciar as rotas de autenticação
 const router = Router();
 
 // Rota de registro
@@ -45,7 +46,7 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 });
 
-// Rota de login
+// Rota de login, recebe de auth.js os dados do formulário
 router.post('/login', async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;

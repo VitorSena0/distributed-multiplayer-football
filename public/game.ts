@@ -152,6 +152,7 @@ interface State {
   isMobile: boolean;
 }
 
+// Estado inicial do jogo no cliente
 const state: State = {
   matchEnded: false,
   canMove: false,
@@ -175,6 +176,7 @@ const state: State = {
   isMobile: false,
 };
 
+// Recupera o ID da sala da URL (?room=XYZ)
 function getRequestedRoomId(): string | null {
   const params = new URLSearchParams(window.location.search);
   const value = params.get('room');
@@ -342,6 +344,7 @@ const userId = sessionStorage.getItem('userId');
 const username = sessionStorage.getItem('username');
 const isGuest = sessionStorage.getItem('isGuest') === 'true';
 
+// Conecta ao servidor Socket.IO, enviando roomId, userId e username, assim o servidor pode autenticar e alocar na sala correta
 const socket = io('/', {
   query: { 
     roomId: state.requestedRoomId || '',
@@ -608,6 +611,9 @@ const socketHandlers = {
 };
 
 // Registrar handlers de todos os eventos definidos acima
+// Isso evita a repetição de `socket.on(...)` para cada evento
+// O socket.on chama a função handler correspondente quando o evento é recebido
+// Cada handler atualiza o estado do jogo e a UI conforme necessário
 Object.entries(socketHandlers).forEach(([event, handler]) => {
   socket.on(event, handler);
 });
@@ -1049,6 +1055,7 @@ function draw(): void {
       config.goal.height
     );
 
+    // Object.entries retorna um array de [chave, valor] para cada propriedade do objeto
     // Jogadores
     for (const [id, player] of Object.entries(state.gameState.players)) {
       if (player) {

@@ -1,6 +1,7 @@
 import express from 'express'; // Freamework web servir arquivos estáticos e gerenciar rotas
 import { Server as SocketIOServer } from 'socket.io'; // Biblioteca para comunicação em tempo real via WebSockets
 import http from 'http'; // Módulo nativo do Node.js para criar servidores HTTP
+import 'dotenv/config'; // Carrega variáveis de ambiente a partir do arquivo .env
 
 import { rooms } from './game/roomManager';
 import { gameLoop } from './game/gameLoop';
