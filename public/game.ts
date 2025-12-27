@@ -124,6 +124,7 @@ interface Player {
   input: Omit<PlayerInput, 'action'>;
   goals: number;
   lastGoalTime: number;
+  username?: string; // Nome do usuário ou "Convidado X"
 }
 
 interface GameState {
@@ -151,6 +152,7 @@ interface State {
   isMobile: boolean;
 }
 
+// Estado inicial do jogo no cliente
 const state: State = {
   matchEnded: false,
   canMove: false,
@@ -174,6 +176,7 @@ const state: State = {
   isMobile: false,
 };
 
+// Recupera o ID da sala da URL (?room=XYZ)
 function getRequestedRoomId(): string | null {
   const params = new URLSearchParams(window.location.search);
   const value = params.get('room');
@@ -331,12 +334,23 @@ updateRoomInfoDisplay();
 // ===============================
 // Conexão com o servidor (Socket.IO)
 // - Enviamos opcionalmente o roomId desejado
+// - Enviamos também informações de autenticação (userId e username)
 // - O servidor decide se aloca em uma sala existente ou cria outra
 // ===============================
 // Socket.IO é carregado via CDN no HTML e tipos são fornecidos por @types/socket.io-client
 
-const socket = io(window.location.origin, {
-  query: { roomId: state.requestedRoomId || '' },
+// Recupera informações do usuário do sessionStorage
+const userId = sessionStorage.getItem('userId');
+const username = sessionStorage.getItem('username');
+const isGuest = sessionStorage.getItem('isGuest') === 'true';
+
+// Conecta ao servidor Socket.IO, enviando roomId, userId e username, assim o servidor pode autenticar e alocar na sala correta
+const socket = io('/', {
+  query: { 
+    roomId: state.requestedRoomId || '',
+    userId: isGuest ? '' : (userId || ''),
+    username: isGuest ? 'Convidado' : (username || 'Convidado'),
+  },
 });
 
 // ===============================
@@ -450,6 +464,13 @@ const socketHandlers = {
     elements.waitingScreen.textContent = message;
     state.canMove = false;
     alert(message);
+  },
+
+  sessionTaken: (data: { message: string }) => {
+    // Desconectar do jogo e redirecionar para tela de login
+    alert(data.message);
+    sessionStorage.clear(); // Limpa dados da sessão
+    window.location.href = '/auth.html';
   },
 
   playerConnected: (data: PlayerConnectedData) => {
@@ -590,6 +611,9 @@ const socketHandlers = {
 };
 
 // Registrar handlers de todos os eventos definidos acima
+// Isso evita a repetição de `socket.on(...)` para cada evento
+// O socket.on chama a função handler correspondente quando o evento é recebido
+// Cada handler atualiza o estado do jogo e a UI conforme necessário
 Object.entries(socketHandlers).forEach(([event, handler]) => {
   socket.on(event, handler);
 });
@@ -664,7 +688,8 @@ function updatePlayerIDs(): void {
     if (player) {
       const idElement = document.createElement('div');
       idElement.className = 'player-id';
-      idElement.textContent = id.substring(0, 5);
+      // Mostra o username ao invés do ID
+      idElement.textContent = player.username || id.substring(0, 5);
 
       if (id === socket.id) {
         idElement.classList.add('my-player');
@@ -693,7 +718,9 @@ function updateGoalscorersPanel(): void {
 
   for (const [id, player] of Object.entries(state.gameState.players)) {
     if (player && player.goals > 0) {
-      const playerInfo = { id: id.substring(0, 5), playerId: id, goals: player.goals, lastGoalTime: player.lastGoalTime };
+      // Use username se disponível, senão ID truncado
+      const displayName = player.username || id.substring(0, 5);
+      const playerInfo = { id: displayName, playerId: id, goals: player.goals, lastGoalTime: player.lastGoalTime };
       if (player.team === 'red') {
         redGoalscorers.push(playerInfo);
       } else {
@@ -1028,6 +1055,7 @@ function draw(): void {
       config.goal.height
     );
 
+    // Object.entries retorna um array de [chave, valor] para cada propriedade do objeto
     // Jogadores
     for (const [id, player] of Object.entries(state.gameState.players)) {
       if (player) {

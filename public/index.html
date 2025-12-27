@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
+    <!-- Ranking lateral -->
+    <div id="ranking-panel">
+      <h3>🏆 TOP 10</h3>
+      <div id="ranking-list">Carregando...</div>
+    </div>
+
     <div id="mobile-controls">
       <div id="joystick-container">
         <div id="joystick-base">
@@ -16,14 +22,79 @@
       <button id="action-btn">CHUTAR</button>
     </div>
 
+    <script>
+      // Verificar autenticação ANTES de carregar qualquer outro script
+      if (!sessionStorage.getItem('token') && sessionStorage.getItem('isGuest') !== 'true') {
+        // Não está logado nem como convidado, redireciona para login
+        window.location.href = '/auth.html';
+      }
+    </script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="/dist/game.js"></script>
     <script>
+
       if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
         document.getElementById('mobile-controls').style.display = 'flex';
         const actionBtn = document.getElementById('action-btn');
         if (actionBtn) actionBtn.style.display = 'none';
       }
+
+      // Carregar ranking
+      async function loadRanking() {
+        try {
+          const response = await fetch('/api/auth/ranking?limit=10');
+          const data = await response.json();
+
+          if (data.success && data.ranking) {
+            const rankingList = document.getElementById('ranking-list');
+            const rankingPanel = document.getElementById('ranking-panel');
+            if (rankingList) {
+              rankingList.innerHTML = `
+                <div class="ranking-header">
+                  <span class="rank-col">#</span>
+                  <span class="player-col">Jogador</span>
+                  <span class="stats-col">VIT</span>
+                  <span class="stats-col">DER</span>
+                  <span class="stats-col">EMP</span>
+                  <span class="stats-col">SG</span>
+                  <span class="stats-col">PJ</span>
+                </div>
+                ${data.ranking.map((player, index) => `
+                  <div class="ranking-item">
+                    <span class="rank">${index + 1}</span>
+                    <span class="player-name">${player.username}</span>
+                    <span class="wins">${player.wins}</span>
+                    <span class="losses">${player.losses}</span>
+                    <span class="draws">${player.draws}</span>
+                    <span class="goals">${player.goals_difference > 0 ? '+' : ''}${player.goals_difference}</span>
+                    <span class="matches">${player.matches_played}</span>
+                  </div>
+                `).join('')}
+              `;
+              // Mostrar o painel após carregar os dados
+              if (rankingPanel) {
+                rankingPanel.style.display = 'block';
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao carregar ranking:', error);
+          const rankingList = document.getElementById('ranking-list');
+          const rankingPanel = document.getElementById('ranking-panel');
+          if (rankingList) {
+            rankingList.innerHTML = '<p style="color: #888;">Erro ao carregar</p>';
+          }
+          // Mostrar painel mesmo com erro para feedback ao usuário
+          if (rankingPanel) {
+            rankingPanel.style.display = 'block';
+          }
+        }
+      }
+
+      loadRanking();
+      // Atualiza ranking a cada 30 segundos
+      setInterval(loadRanking, 30000);
     </script>
   </body>
 </html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Multiplayer Soccer</title>
+    <link rel="stylesheet" href="/auth-style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h1>⚽ Multiplayer Soccer</h1>
+            
+            <!-- Formulário de Login -->
+            <div id="login-form" class="form-container">
+                <h2>Entrar</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="login-username">Usuário</label>
+                        <input type="text" id="login-username" required minlength="3" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                    <p class="toggle-form">
+                        Não tem uma conta? <a href="#" id="show-register">Registre-se</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Formulário de Registro -->
+            <div id="register-form" class="form-container hidden">
+                <h2>Criar Conta</h2>
+                <div class="security-notice">
+                    🔒 Seus dados estão protegidos com <strong>bcrypt</strong> (hash de senha) e <strong>JWT</strong> (autenticação segura)
+                </div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="register-username">Usuário</label>
+                        <input type="text" id="register-username" required minlength="3" maxlength="50">
+                        <small>Entre 3 e 50 caracteres</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Senha</label>
+                        <input type="password" id="register-password" required minlength="6">
+                        <small>Mínimo 6 caracteres</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Confirmar Senha</label>
+                        <input type="password" id="register-password-confirm" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary">Registrar</button>
+                    <p class="toggle-form">
+                        Já tem uma conta? <a href="#" id="show-login">Faça login</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Botão para jogar como convidado -->
+            <div class="guest-section">
+                <button id="guest-btn" class="btn-secondary">Jogar como Convidado</button>
+                <p class="guest-note">*Estatísticas não serão salvas</p>
+            </div>
+
+            <!-- Mensagens de erro/sucesso -->
+            <div id="message" class="message hidden"></div>
+        </div>
+    </div>
+
+    <script src="/auth.js"></script>
+</body>
+</html>

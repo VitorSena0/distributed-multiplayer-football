@@ -14,6 +14,8 @@ export interface Player {
     input: PlayerInput;
     goals: number;
     lastGoalTime: number; // Timestamp do último gol marcado
+    userId?: number; // ID do usuário no banco de dados (undefined se convidado)
+    username?: string; // Nome do usuário
 }
 
 // Definição de tipos para a bola

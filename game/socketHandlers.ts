@@ -4,6 +4,10 @@ import { MAX_PLAYERS_PER_ROOM } from './constants';
 import { allocateRoom, buildGameState, cleanupRoomIfEmpty } from './roomManager';
 import { checkRestartConditions, startNewMatch } from './match';
 import { PlayerInput } from './types';
+import { AuthService } from '../services/authService';
+
+// Mapa para rastrear usuários logados (userId -> socketId)
+const loggedInUsers = new Map<number, string>();
 
 // Registra todos os handlers de eventos do Socket.IO relacionados ao jogo
 export function registerSocketHandlers(io: SocketIOServer): void {
@@ -11,6 +15,32 @@ export function registerSocketHandlers(io: SocketIOServer): void {
     io.on('connection', (socket: Socket) => {
         // ID da sala requisitada pelo cliente (via query string), se existir
         const requestedRoomId = socket.handshake.query?.roomId as string | undefined;
+        
+        // Informações de autenticação do jogador
+        const userIdStr = socket.handshake.query?.userId as string | undefined;
+        const username = socket.handshake.query?.username as string | undefined;
+        const userId = userIdStr ? parseInt(userIdStr) : undefined;
+
+        // Verifica se o usuário já está logado em outra sessão (apenas para usuários registrados)
+        if (userId && loggedInUsers.has(userId)) {
+            const previousSocketId = loggedInUsers.get(userId);
+            
+            // Desconecta a sessão anterior do mesmo usuário
+            if (previousSocketId) {
+                const previousSocket = io.sockets.sockets.get(previousSocketId);
+                if (previousSocket) {
+                    previousSocket.emit('sessionTaken', {
+                        message: 'Sua conta foi acessada em outro dispositivo/aba'
+                    });
+                    previousSocket.disconnect(true);
+                }
+            }
+        }
+
+        // Se o usuário é registrado (tem userId), registra no mapa de logados
+        if (userId) {
+            loggedInUsers.set(userId, socket.id);
+        }
 
         // Aloca o jogador em uma sala (nova ou existente)
         const allocation = allocateRoom(requestedRoomId);
@@ -37,6 +67,16 @@ export function registerSocketHandlers(io: SocketIOServer): void {
         const team: 'red' | 'blue' = redCount <= blueCount ? 'red' : 'blue';
         room.teams[team].push(socket.id);
 
+        // Se for convidado, conta quantos convidados já existem na sala para numerar sequencialmente
+        let displayName = username || 'Convidado';
+        if (!userId || !username) {
+            // Conta quantos convidados já existem na sala
+            const guestCount = Object.values(room.players).filter(
+                p => p.username && p.username.startsWith('Convidado')
+            ).length;
+            displayName = `Convidado ${guestCount + 1}`;
+        }
+
         // Cria o estado inicial do jogador dentro da sala
         room.players[socket.id] = {
             x: team === 'red' ? 100 : room.width - 100,
@@ -46,6 +86,8 @@ export function registerSocketHandlers(io: SocketIOServer): void {
             input: { left: false, right: false, up: false, down: false },
             goals: 0,
             lastGoalTime: 0,
+            userId: userId,
+            username: displayName,
         };
 
         // Informa ao cliente em qual sala ele entrou e quantos jogadores existem
@@ -128,6 +170,14 @@ export function registerSocketHandlers(io: SocketIOServer): void {
             // Para o envio de pings para este cliente
             clearInterval(pingInterval);
             console.log('Jogador desconectado:', socket.id);
+
+            // Remove o usuário do mapa de logados (se for usuário registrado)
+            if (userId) {
+                const socketId = loggedInUsers.get(userId);
+                if (socketId === socket.id) {
+                    loggedInUsers.delete(userId);
+                }
+            }
 
             const player = room.players[socket.id];
             if (player) {
