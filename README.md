@@ -49,6 +49,9 @@ O servidor Node é responsável por:
 - **Autenticar usuários** e salvar **estatísticas de partidas** no PostgreSQL.
 
 O cliente web (HTML/Canvas/JS) renderiza o campo, jogadores, bola, placar e cronômetro, além de enviar os comandos de input (setas/WASD, etc.) para o servidor via Socket.IO.
+<img width="1911" height="767" alt="Captura de tela de 2025-12-27 12-27-32" src="https://github.com/user-attachments/assets/9e0962bc-fe47-4865-a3ff-edb069c746cc" />
+
+
 
 ---
 
@@ -61,6 +64,9 @@ O jogo possui três modos de acesso:
 1. **Login**: Usuários registrados fazem login com usuário e senha
 2. **Registro**: Novos jogadores criam uma conta com usuário único e senha criptografada (bcrypt)
 3. **Convidado**: Jogar sem criar conta (estatísticas não são salvas)
+
+<img width="1507" height="800" alt="Captura de tela de 2025-12-27 12-28-05" src="https://github.com/user-attachments/assets/98adaf7f-81ca-417b-9534-c5cb53fa5d67" />
+
 
 ### 📊 Estatísticas Salvas
 
@@ -98,6 +104,9 @@ O ranking é ordenado por: Vitórias > Saldo de Gols > Total de Gols Marcados
 - **Proteção de sessão**: Um usuário só pode estar logado em uma sessão por vez. Se tentar fazer login em outro dispositivo/aba, a sessão anterior é desconectada automaticamente
 - **Mensagem de segurança**: Interface de registro informa que os dados são protegidos com bcrypt (hash de senha) e JWT (autenticação segura)
 - **Armazenamento temporário**: Dados de sessão são armazenados em `sessionStorage` (não persistem após fechar o navegador)
+
+<img width="1513" height="919" alt="Captura de tela de 2025-12-27 12-28-23" src="https://github.com/user-attachments/assets/b9dea00f-daf0-4038-a2b8-4ddbabedbd8a" />
+
 
 ### 🛠️ Tecnologias de Autenticação
 
