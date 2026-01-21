@@ -3,8 +3,6 @@
 Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO**, **PostgreSQL** e **TypeScript**.  
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
 
-> **🔐 Sistema de Autenticação**: O jogo agora possui um sistema completo de login e registro com PostgreSQL 17, onde os jogadores podem criar contas, fazer login ou jogar como convidado. As estatísticas de partidas completas (gols marcados, gols sofridos, vitórias, derrotas, empates) são salvas automaticamente e exibidas em um ranking global.
-
 ---
 
 ## Índice
