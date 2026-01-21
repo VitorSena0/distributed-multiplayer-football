@@ -9,6 +9,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 
 - [Multiplayer Soccer](#multiplayer-soccer)
   - [Índice](#índice)
+  - [📊 Documentos de Apresentação](#-documentos-de-apresentação)
   - [Visão Geral](#visão-geral)
   - [Sistema de Autenticação e Estatísticas](#sistema-de-autenticação-e-estatísticas)
   - [Demonstração](#demonstração)
@@ -29,6 +30,43 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
   - [Variáveis de Ambiente](#variáveis-de-ambiente)
   - [Roteiro de Desenvolvimento Futuro](#roteiro-de-desenvolvimento-futuro)
   - [Licença](#licença)
+
+---
+
+## 📊 Documentos de Apresentação
+
+**Para Apresentação do Projeto de Sistemas Distribuídos:**
+
+### 📄 [APRESENTACAO.md](APRESENTACAO.md)
+Documento completo preparado para alimentar IA geradora de slides:
+- **1539 linhas** de conteúdo estruturado
+- **40+ slides** detalhados com conteúdo completo
+- **9 seções principais** organizadas por tempo (20-25 min)
+- **Foco total nos requisitos do barema** (60% da nota):
+  - Arquitetura Distribuída (15%)
+  - Comunicação em Rede (15%)
+  - Tolerância a Falhas + Persistência (15%)
+  - Segurança + Escalabilidade + Observabilidade (15%)
+- Diagramas, código explicativo e pontos-chave
+- Instruções para formatação de slides
+- Perguntas prováveis e respostas preparadas
+
+### 🎯 [GUIA_RAPIDO_APRESENTACAO.md](GUIA_RAPIDO_APRESENTACAO.md)
+Referência rápida para preparação da apresentação:
+- Visão geral do tempo por seção
+- Pontos-chave por requisito (15% cada)
+- Frases de impacto para cada seção
+- Respostas rápidas para perguntas frequentes
+- Roteiro detalhado de demonstração (2 min)
+- Métricas importantes para mencionar
+- Checklist pré-apresentação
+- Dicas de oratória e templates de resposta
+
+**💡 Como usar:**
+1. Use `APRESENTACAO.md` como input para IA gerar slides
+2. Consulte `GUIA_RAPIDO_APRESENTACAO.md` ao preparar
+3. Pratique com o roteiro de demonstração incluído
+4. Tempo estimado de preparação: 4-6 horas (incluindo ensaios)
 
 ---
 
