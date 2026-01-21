@@ -2,263 +2,202 @@
 
 ## Visão Geral
 
-O arquivo **README_APRESENTACAO.md** foi criado especificamente para alimentar uma IA geradora de slides (como ChatGPT, Claude, ou ferramentas de apresentação com IA) para criar slides da sua apresentação do trabalho de Sistemas Distribuídos.
+O arquivo **README_APRESENTACAO.md** foi otimizado para uma apresentação de **20-25 minutos** focada em **infraestrutura de sistemas distribuídos**.
 
 ## Estrutura do Documento
 
 O documento contém:
-- **18 seções temáticas** organizadas por tópicos
-- **52 slides detalhados** com conteúdo completo para cada um
-- **Apêndice com guia** para a IA geradora de slides
+- **23 slides** organizados em 6 seções temáticas
+- **Foco principal:** Infraestrutura, arquitetura e escalabilidade
+- **Tempo estimado:** 20-25 minutos de apresentação
+- **Guia para IA** com instruções de formatação
+
+## Distribuição dos Slides
+
+### Introdução (2 slides - 2 min)
+- Slide 1: Título e Visão Geral
+- Slide 2: Desafios de Sistemas Distribuídos
+
+### Arquitetura Distribuída (6 slides - 8 min) ⭐ PRINCIPAL
+- Slide 3: Arquitetura Geral - Visão de Alto Nível
+- Slide 4: Infraestrutura de Microsserviços (Docker Compose)
+- Slide 5: Servidor Autoritativo - Modelo de Consistência
+- Slide 6: Comunicação em Tempo Real - Socket.IO
+- Slide 7: Game Loop - Ciclo de Simulação Distribuída
+- Slide 8: Sincronização e Consistência de Estado
+
+### Infraestrutura e Escalabilidade (4 slides - 5 min) ⭐ PRINCIPAL
+- Slide 9: Gerenciamento de Salas (Rooms)
+- Slide 10: Tolerância a Falhas
+- Slide 11: Estratégias de Escalabilidade
+- Slide 12: Persistência de Dados
+
+### Segurança e Consistência (4 slides - 4 min)
+- Slide 13: Segurança da Infraestrutura
+- Slide 14: Consistência de Dados Distribuídos
+- Slide 15: Observabilidade do Sistema
+- Slide 16: Autenticação e Gerenciamento de Sessões
+
+### Demonstração e Resultados (4 slides - 4 min)
+- Slide 17: Demonstração do Sistema em Funcionamento
+- Slide 18: Análise de Performance
+- Slide 19: Requisitos Técnicos Atendidos
+- Slide 20: Diferenciais Técnicos do Projeto
+
+### Conclusão (3 slides - 2 min)
+- Slide 21: Desafios de Infraestrutura Enfrentados
+- Slide 22: Lições de Sistemas Distribuídos
+- Slide 23: Conclusão e Próximos Passos
 
 ## Como Usar
 
-### Opção 1: Apresentação Completa (52 slides)
-Para uma apresentação detalhada de aproximadamente 45-60 minutos:
+### Opção 1: Gerar Slides com IA (Recomendado)
 
 ```
 1. Abra o arquivo README_APRESENTACAO.md
-2. Copie TODO o conteúdo do arquivo
-3. Cole em uma IA geradora de slides (ChatGPT, Claude, etc.)
-4. Use o prompt:
+2. Copie TODO o conteúdo (Ctrl+A, Ctrl+C)
+3. Acesse chat.openai.com ou claude.ai
+4. Cole e use o prompt:
 
-"Gere slides de apresentação baseado no conteúdo abaixo. 
-Siga as instruções no APÊNDICE para estrutura e formatação."
+"Gere uma apresentação em PowerPoint/Google Slides com 23 slides 
+baseada no conteúdo abaixo. Siga as instruções do GUIA PARA IA 
+GERADORA DE SLIDES no final do documento. Foque em diagramas 
+técnicos e visualizações de arquitetura distribuída."
 ```
 
-### Opção 2: Apresentação Resumida (25-30 slides)
-Para uma apresentação média de aproximadamente 30 minutos:
+### Opção 2: Criar Manualmente
 
-```
-1. Copie as SEÇÕES 1-11 do README_APRESENTACAO.md
-2. Cole em uma IA geradora de slides
-3. Use o prompt:
-
-"Gere slides de apresentação focando nos critérios de avaliação 
-(seções 2-11). Esta é uma versão resumida de 25-30 slides."
-```
-
-### Opção 3: Apresentação Executiva (15-20 slides)
-Para uma apresentação rápida de aproximadamente 15-20 minutos:
-
-```
-1. Copie as SEÇÕES 1-8 + SEÇÃO 18 (Conclusão) do README_APRESENTACAO.md
-2. Cole em uma IA geradora de slides
-3. Use o prompt:
-
-"Gere uma apresentação executiva de 15-20 slides focando nos 
-aspectos técnicos principais (arquitetura, comunicação, 
-consistência, sessões, tolerância a falhas, escalabilidade, 
-persistência e interface)."
-```
-
-## Seções por Critério de Avaliação
-
-### Aspectos Técnicos (60% - 60 pontos)
-
-1. **Arquitetura Distribuída (15 pontos):**
-   - SEÇÃO 2: Slides 4-7
-
-2. **Comunicação e Consistência (15 pontos):**
-   - SEÇÃO 3: Slides 8-11 (Comunicação)
-   - SEÇÃO 4: Slides 12-13 (Consistência)
-
-3. **Tolerância a Falhas e Persistência (15 pontos):**
-   - SEÇÃO 6: Slides 17-19 (Tolerância a Falhas)
-   - SEÇÃO 8: Slides 23-25 (Persistência)
-
-4. **Segurança, Escalabilidade e Observabilidade (15 pontos):**
-   - SEÇÃO 7: Slides 20-22 (Escalabilidade)
-   - SEÇÃO 10: Slides 29-31 (Segurança e Observabilidade)
-
-### Funcionalidade e Criatividade (20% - 20 pontos)
-
-5. **Funcionamento e Criatividade:**
-   - SEÇÃO 11: Slides 32-34
-
-### Documentação e Apresentação (20% - 20 pontos)
-
-6. **Documentação Técnica:**
-   - SEÇÃO 10: Slide 31 (Documentação)
-   - Mencionado em toda a apresentação
-
-7. **Apresentação Oral:**
-   - Todo o documento está estruturado para isso
-   - SEÇÃO 15: Slides 43-44 (Demonstração)
+Use o README_APRESENTACAO.md como roteiro e crie slides manualmente em PowerPoint ou Google Slides, seguindo a estrutura de cada slide.
 
 ## Ferramentas Recomendadas
 
-### IAs para Geração de Slides:
-1. **ChatGPT (OpenAI)** - Recomendado
-   - Pode gerar apresentações em PowerPoint
-   - Suporta formatação rica
-   - Compreende bem estrutura complexa
+### Para Geração Automática:
+1. **ChatGPT (OpenAI)** - Pode gerar PPTX direto
+2. **Claude (Anthropic)** - Excelente para conteúdo técnico
+3. **Gamma App** (gamma.app) - Especializada em apresentações
+4. **Beautiful.ai** - Design automático
+5. **Tome** (tome.app) - IA para slides
 
-2. **Claude (Anthropic)** - Recomendado
-   - Excelente para textos longos
-   - Compreende bem contexto técnico
-   - Pode gerar markdown para conversão
+### Para Edição Manual:
+1. **Microsoft PowerPoint**
+2. **Google Slides**
+3. **Canva**
+4. **Keynote** (Mac)
 
-3. **Gamma App** (gamma.app)
-   - Ferramenta específica para slides
-   - Interface amigável
-   - Gera automaticamente com IA
+## Prompts Sugeridos
 
-4. **Beautiful.ai**
-   - Design automático de slides
-   - Templates profissionais
+### Prompt Inicial para ChatGPT/Claude:
 
-5. **Tome** (tome.app)
-   - IA para apresentações
-   - Gera automaticamente
-
-## Prompts Sugeridos para IAs
-
-### Para ChatGPT/Claude:
-
-**Prompt Inicial:**
 ```
-Você é um assistente especializado em criar apresentações técnicas. 
-Vou fornecer um documento estruturado com 52 slides para uma apresentação 
-de Sistemas Distribuídos. Cada slide está marcado com "## Slide N:" e 
-contém o conteúdo detalhado.
+Você é um especialista em criar apresentações técnicas sobre sistemas 
+distribuídos. Vou fornecer um documento com 23 slides sobre um projeto 
+de jogo multiplayer distribuído.
 
 Sua tarefa:
-1. Gerar os slides em formato apropriado (PowerPoint, Google Slides, ou Markdown)
-2. Seguir a estrutura hierárquica (títulos, subtítulos, bullet points)
-3. Criar diagramas onde indicado
-4. Usar ícones e cores conforme instruções no APÊNDICE
-5. Manter consistência visual entre slides
+1. Gerar os slides em formato PowerPoint/Google Slides
+2. Criar diagramas de arquitetura onde indicado
+3. Usar cores profissionais (azul para técnico, verde para sucesso)
+4. Incluir ícones técnicos (✅, ⚡, 🔒)
+5. Manter hierarquia visual clara
+6. FOCO PRINCIPAL: Infraestrutura de sistemas distribuídos
 
+Os slides 3-16 são os mais importantes (arquitetura e infraestrutura).
 Pronto para receber o documento?
 ```
 
-**Após a resposta positiva, cole todo o conteúdo de README_APRESENTACAO.md**
+### Para Melhorar Diagramas:
 
-### Prompts para Ajustes:
-
-**Para melhorar design:**
 ```
-Sugira melhorias de design para os slides 4-7 (Arquitetura Distribuída).
-Inclua sugestões de cores, layout e elementos visuais.
+Melhore o diagrama de arquitetura do Slide 3 para ser mais visual e 
+profissional. Use caixas, setas e cores para mostrar o fluxo de dados.
 ```
 
-**Para adicionar exemplos:**
-```
-Adicione exemplos práticos e casos de uso aos slides 8-11 (Comunicação em Rede).
-```
+### Para Ajustar Conteúdo:
 
-**Para simplificar:**
 ```
-Simplifique o conteúdo dos slides 35-37 para uma audiência menos técnica.
+O Slide 11 sobre escalabilidade está muito técnico. Simplifique para 
+uma audiência de graduação, mantendo os conceitos principais.
 ```
 
-## Exportação e Formatação
+## Personalização Necessária
 
-### Para PowerPoint:
-1. Peça para a IA gerar em formato PPTX
-2. Ou exporte markdown e use ferramentas como Marp ou Deckset
-3. Ajuste fontes, cores e layout manualmente se necessário
+Antes de apresentar, adicione:
 
-### Para Google Slides:
-1. Peça para a IA gerar um script de importação
-2. Ou copie e cole conteúdo de cada slide manualmente
-3. Use templates do Google Slides para design consistente
+1. **Slide 1:** Seu nome, turma e data
+2. **Slides 1 e 17:** Screenshots do jogo funcionando
+3. **Slide 23:** Suas informações de contato
+4. **Opcional:** Ajustar cores/tema para identidade visual da instituição
 
-### Para PDF:
-1. Gere em PowerPoint ou Google Slides primeiro
-2. Exporte como PDF
-3. Ou use ferramentas como Marp para markdown → PDF direto
+## Dicas para Apresentação (20-25 min)
 
-## Personalização
-
-### Adicionar suas informações:
-- **Slide 1:** Adicione seu nome e turma
-- **Slide 52:** Adicione suas informações de contato
-- **Slides de Demonstração:** Adicione screenshots reais do seu projeto
-
-### Ajustar tempo de apresentação:
-- **15 minutos:** Use Opção 3 (15-20 slides)
-- **30 minutos:** Use Opção 2 (25-30 slides)
-- **45-60 minutos:** Use Opção 1 (52 slides completos)
-
-### Focar em critérios específicos:
-Se o professor enfatizou algum critério:
-- **Arquitetura:** Expandir SEÇÃO 2
-- **Comunicação:** Expandir SEÇÃO 3
-- **Segurança:** Expandir SEÇÃO 10
-- **Criatividade:** Expandir SEÇÃO 11
-
-## Dicas para Apresentação
-
-### Antes da Apresentação:
-1. ✅ Teste o sistema funcionando
-2. ✅ Prepare demonstração ao vivo (SEÇÃO 15)
-3. ✅ Tenha screenshots de backup caso internet falhe
-4. ✅ Memorize os pontos principais de cada seção
-5. ✅ Pratique transições entre slides
+### Distribuição de Tempo:
+- **Slides 1-2 (2 min):** Introdução rápida
+- **Slides 3-8 (8 min):** APROFUNDAR - Arquitetura distribuída
+- **Slides 9-12 (5 min):** APROFUNDAR - Infraestrutura e escalabilidade
+- **Slides 13-16 (4 min):** Segurança e consistência
+- **Slides 17-20 (4 min):** Demonstração prática
+- **Slides 21-23 (2 min):** Conclusão rápida
 
 ### Durante a Apresentação:
-1. 🎯 Foque nos critérios de avaliação (seções 2-11)
-2. 🎯 Demonstre o sistema funcionando (ao vivo ou vídeo)
-3. 🎯 Explique decisões técnicas e trade-offs
-4. 🎯 Mostre código importante (2-3 exemplos)
-5. 🎯 Conecte teoria com prática
+1. ⚡ **Slides 3-12:** FOCO MÁXIMO - São os mais técnicos e importantes
+2. 🎯 Demonstre o sistema funcionando no Slide 17 (ao vivo ou vídeo)
+3. 📊 Mencione métricas específicas (60 FPS, 30-50ms latência)
+4. 🔧 Explique trade-offs (consistência vs disponibilidade)
+5. 💡 Use os diagramas para explicar fluxos complexos
 
-### Responder Perguntas:
-- Use slides de APÊNDICE como referência
-- Mencione documentação técnica completa
-- Demonstre conhecimento do código
-- Seja honesto sobre limitações e trabalhos futuros
+### Prática:
+1. Ensaie 2-3 vezes cronometrando
+2. Pratique explicar os diagramas de arquitetura
+3. Prepare respostas para perguntas comuns:
+   - "Por que escolheu servidor autoritativo?"
+   - "Como funciona a escalabilidade?"
+   - "Como garante consistência?"
+   - "E se o servidor cair?"
 
-## Checklist Final
+## Cobertura dos Critérios de Avaliação
 
-Antes de gerar os slides:
-- [ ] Entendi a estrutura do documento
-- [ ] Escolhi qual opção usar (completa/resumida/executiva)
-- [ ] Identifiquei ferramentas para gerar slides
-- [ ] Preparei prompts para IA
+O README_APRESENTACAO.md cobre **100% dos critérios**:
 
-Antes da apresentação:
-- [ ] Slides gerados e revisados
-- [ ] Adicionei informações pessoais
-- [ ] Screenshots e demonstrações prontas
-- [ ] Sistema testado e funcionando
-- [ ] Pratiquei a apresentação
+| Critério | Pontos | Slides Principais |
+|----------|--------|-------------------|
+| Arquitetura Distribuída | 15 | 3, 4, 5 |
+| Comunicação em Rede | 15 | 6, 7, 8 |
+| Tolerância a Falhas + Persistência | 15 | 10, 12 |
+| Segurança + Escalabilidade | 15 | 11, 13, 15 |
+| Funcionalidade | 10 | 17, 19 |
+| Criatividade | 10 | 20 |
+| Documentação | 10 | 19 |
+| Apresentação | 10 | Todos |
 
 ## Recursos Adicionais
 
-### Documentação Técnica do Projeto:
-- `README.md` - Visão geral e instalação
+Para estudar antes da apresentação:
+
+- `README.md` - Visão geral do projeto
 - `docs/GUIA_TECNICO.md` - Arquitetura detalhada
-- `docs/API.md` - Endpoints e eventos
-- `docs/DATABASE.md` - Schema do banco
-- `docs/DEPLOY.md` - Deploy e infraestrutura
-- `docs/SECURITY_REPORT.md` - Análise de segurança
+- `docs/DOCKER.md` - Containerização
+- `docs/DEPLOY.md` - Infraestrutura
+- `docs/SECURITY_REPORT.md` - Segurança
 
-### Para Estudar Antes da Apresentação:
-1. Revisar conceitos de sistemas distribuídos
-2. Entender Socket.IO e WebSockets
-3. Revisar arquitetura cliente-servidor
-4. Estudar Docker e containerização
-5. Revisar PostgreSQL e persistência
+## Checklist Final
 
-## Suporte
+Antes da apresentação:
+- [ ] Slides gerados e revisados
+- [ ] Screenshots adicionados
+- [ ] Nome e informações pessoais incluídos
+- [ ] Sistema funcionando e testado
+- [ ] Demonstração preparada (ao vivo ou gravada)
+- [ ] Apresentação ensaiada 2-3 vezes
+- [ ] Tempo verificado (20-25 min)
+- [ ] Perguntas potenciais antecipadas
 
-Se tiver dúvidas sobre:
-- **Conteúdo técnico:** Consulte documentação em `docs/`
-- **Estrutura da apresentação:** Releia o APÊNDICE do README_APRESENTACAO.md
-- **Critérios de avaliação:** Revise o barema no problema original
+## Diferencial desta Versão
 
-## Conclusão
-
-Este README_APRESENTACAO.md foi criado para facilitar ao máximo a geração de slides de alta qualidade para sua apresentação. Ele cobre:
-
-✅ Todos os critérios de avaliação (100% do barema)
-✅ Explicações técnicas detalhadas
-✅ Exemplos práticos e diagramas
-✅ Estrutura clara para IA processar
-✅ Flexibilidade para diferentes durações
-✅ Foco nos pontos importantes
+✅ **Reduzido de 52 para 23 slides** (otimizado para 20-25 min)
+✅ **Foco em infraestrutura distribuída** (50% dos slides)
+✅ **Mais aprofundamento técnico** nos tópicos importantes
+✅ **Diagramas de arquitetura detalhados**
+✅ **Métricas e números específicos**
+✅ **Demonstração prática incluída**
 
 **Boa apresentação! 🚀**

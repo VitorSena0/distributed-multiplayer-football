@@ -1,183 +1,203 @@
-# RESUMO DOS ARQUIVOS CRIADOS PARA APRESENTAÇÃO
+# RESUMO - APRESENTAÇÃO DE 20-25 MINUTOS
 
 ## ✅ Arquivos Criados
 
-### 1. README_APRESENTACAO.md (Principal)
-**Propósito:** Documento completo para alimentar IA geradora de slides
+### 1. README_APRESENTACAO.md (544 linhas)
+**Apresentação otimizada para 20-25 minutos com foco em infraestrutura**
 
 **Conteúdo:**
-- 18 seções temáticas organizadas
-- 52 slides detalhados com conteúdo completo
-- Cobre 100% dos critérios de avaliação do barema
-- Instruções para IA no apêndice
+- 23 slides organizados em 6 seções
+- Foco principal: Arquitetura distribuída e infraestrutura
+- Diagramas técnicos detalhados
+- Métricas e análise de performance
 
 **Estrutura:**
-- SEÇÃO 1: Introdução (3 slides)
-- SEÇÃO 2: Arquitetura Distribuída - 15 pontos (4 slides)
-- SEÇÃO 3: Comunicação em Rede - 15 pontos (4 slides)
-- SEÇÃO 4: Consistência de Dados (2 slides)
-- SEÇÃO 5: Gerenciamento de Sessões (3 slides)
-- SEÇÃO 6: Tolerância a Falhas - 15 pontos (3 slides)
-- SEÇÃO 7: Escalabilidade - 15 pontos (3 slides)
-- SEÇÃO 8: Persistência de Dados - 15 pontos (3 slides)
-- SEÇÃO 9: Interface do Usuário (3 slides)
-- SEÇÃO 10: Segurança e Observabilidade - 15 pontos (3 slides)
-- SEÇÃO 11: Funcionalidade e Criatividade - 20 pontos (3 slides)
-- SEÇÃO 12: Implementação Técnica (3 slides)
-- SEÇÃO 13: Testes e Validação (2 slides)
-- SEÇÃO 14: Deploy e Infraestrutura (3 slides)
-- SEÇÃO 15: Demonstração Prática (2 slides)
-- SEÇÃO 16: Desafios e Soluções (2 slides)
-- SEÇÃO 17: Trabalhos Futuros (2 slides)
-- SEÇÃO 18: Conclusão (3 slides)
+- Introdução: 2 slides (2 min)
+- Arquitetura Distribuída: 6 slides (8 min) ⭐
+- Infraestrutura e Escalabilidade: 4 slides (5 min) ⭐
+- Segurança e Consistência: 4 slides (4 min)
+- Demonstração e Resultados: 4 slides (4 min)
+- Conclusão: 3 slides (2 min)
 
-### 2. COMO_USAR_APRESENTACAO.md (Guia de Uso)
-**Propósito:** Instruções de como usar o README_APRESENTACAO.md
+### 2. COMO_USAR_APRESENTACAO.md (203 linhas)
+**Guia prático de uso**
 
 **Conteúdo:**
-- 3 opções de apresentação (completa/resumida/executiva)
-- Mapeamento para critérios de avaliação
-- Ferramentas recomendadas para gerar slides
-- Prompts sugeridos para IAs
-- Dicas de personalização
-- Checklist para apresentação
+- Instruções passo a passo
+- Distribuição de tempo por seção
+- Prompts para IAs
+- Dicas de apresentação
+- Checklist final
 
-## 📊 Resumo Estatístico
+### 3. RESUMO_ARQUIVOS_CRIADOS.md (Este arquivo)
+**Referência rápida**
 
-### README_APRESENTACAO.md:
-- **Total de linhas:** 1.013
-- **Total de seções:** 18
-- **Total de slides:** 52
-- **Cobertura do barema:** 100%
+## 📊 Mudanças da Versão Anterior
 
-### Distribuição por Critério de Avaliação:
+| Aspecto | Versão Anterior | Versão Atual |
+|---------|----------------|--------------|
+| Slides | 52 | 23 |
+| Tempo | 45-60 min | 20-25 min |
+| Foco | Geral | Infraestrutura |
+| Arquitetura | 4 slides | 6 slides |
+| Infraestrutura | 3 slides | 4 slides |
+| Detalhamento | Amplo | Profundo em tópicos chave |
 
-**Aspectos Técnicos (60 pontos):**
-- Arquitetura Distribuída: 4 slides (Slides 4-7)
-- Comunicação e Consistência: 6 slides (Slides 8-13)
-- Tolerância e Persistência: 6 slides (Slides 17-19, 23-25)
-- Segurança/Escalabilidade/Observabilidade: 6 slides (Slides 20-22, 29-31)
-- **Total:** 22 slides
+## 🎯 Slides Principais (Mais Importantes)
 
-**Funcionalidade e Criatividade (20 pontos):**
-- 3 slides (Slides 32-34)
+**SLIDES CRÍTICOS - DEDIQUE MAIS TEMPO:**
 
-**Documentação e Apresentação (20 pontos):**
-- Coberto em toda a apresentação
-- Específico: Slide 31 + Seção 13
+1. **Slide 3:** Arquitetura Geral - Diagrama completo
+2. **Slide 4:** Microsserviços Docker Compose
+3. **Slide 5:** Servidor Autoritativo
+4. **Slide 6:** Comunicação Socket.IO
+5. **Slide 7:** Game Loop Distribuído
+6. **Slide 11:** Estratégias de Escalabilidade
 
-## 🎯 Como Usar - Passo a Passo Rápido
+Estes slides representam o core de sistemas distribuídos.
 
-### Opção 1: Apresentação Completa (45-60 min)
+## ⚡ Início Rápido (5 minutos)
+
 ```bash
-1. Abra README_APRESENTACAO.md
-2. Copie TODO o conteúdo
-3. Cole em ChatGPT/Claude
-4. Prompt: "Gere slides seguindo as instruções no APÊNDICE"
+# 1. Copiar conteúdo
+cat README_APRESENTACAO.md | pbcopy  # Mac
+# ou
+cat README_APRESENTACAO.md | xclip -selection clipboard  # Linux
+
+# 2. Abrir ChatGPT
+# 3. Colar e pedir: "Gere 23 slides seguindo o guia no final"
+# 4. Exportar para PowerPoint
+# 5. Adicionar screenshots e informações pessoais
 ```
 
-### Opção 2: Apresentação Resumida (30 min)
-```bash
-1. Copie SEÇÕES 1-11 do README_APRESENTACAO.md
-2. Cole em ChatGPT/Claude
-3. Prompt: "Gere 25-30 slides focando nos critérios de avaliação"
+## 📈 Cobertura do Barema (100%)
+
+| Critério | Pontos | Slides | Detalhe |
+|----------|--------|--------|---------|
+| **Arquitetura Distribuída** | 15 | 3, 4, 5 | Cliente-servidor, microsserviços |
+| **Comunicação Eficiente** | 15 | 6, 7, 8 | WebSocket 60 FPS, consistência |
+| **Tolerância + Persistência** | 15 | 10, 12 | Reconexão, PostgreSQL ACID |
+| **Segurança + Escalabilidade** | 15 | 11, 13, 15 | bcrypt, JWT, cluster preparado |
+| **Funcionalidade** | 10 | 17, 19 | Demo ao vivo, requisitos |
+| **Criatividade** | 10 | 20 | Diferenciais técnicos |
+| **Documentação** | 10 | 19 | Docs completas |
+| **Apresentação** | 10 | Todos | Estrutura clara |
+| **TOTAL** | **100** | **23** | |
+
+## 🔧 Distribuição de Tempo
+
+**Apresentação de 25 minutos:**
+
+```
+00:00 - 02:00  │ Slides 1-2   │ Introdução
+02:00 - 10:00  │ Slides 3-8   │ Arquitetura ⭐⭐⭐
+10:00 - 15:00  │ Slides 9-12  │ Infraestrutura ⭐⭐⭐
+15:00 - 19:00  │ Slides 13-16 │ Segurança
+19:00 - 23:00  │ Slides 17-20 │ Demonstração
+23:00 - 25:00  │ Slides 21-23 │ Conclusão
 ```
 
-### Opção 3: Apresentação Executiva (15-20 min)
-```bash
-1. Copie SEÇÕES 1-8 + SEÇÃO 18 do README_APRESENTACAO.md
-2. Cole em ChatGPT/Claude
-3. Prompt: "Gere 15-20 slides executivos focando em aspectos técnicos"
+**Foco máximo:** Slides 3-12 (60% do tempo)
+
+## 💡 Principais Diferenciais
+
+### Foco em Infraestrutura:
+✅ Diagramas de arquitetura completos
+✅ Explicação detalhada de Docker Compose
+✅ Game Loop distribuído (60 FPS)
+✅ Estratégias de escalabilidade (cluster)
+✅ Tolerância a falhas e reconexão
+✅ Consistência de dados distribuídos
+
+### Conteúdo Técnico:
+✅ Métricas específicas (latência, FPS, capacidade)
+✅ Trade-offs explicados (CAP theorem)
+✅ Código e configurações reais
+✅ Análise de performance
+✅ Lições de sistemas distribuídos
+
+## 🎓 Ferramentas para Gerar Slides
+
+**Recomendadas:**
+1. **ChatGPT** - Gera PPTX direto
+2. **Claude** - Excelente para técnico
+3. **Gamma App** - Visual e rápido
+
+**Prompt básico:**
+```
+"Gere apresentação de 23 slides sobre sistema distribuído 
+seguindo o guia no final do documento. Foque em diagramas 
+de arquitetura e infraestrutura."
 ```
 
-## 🔧 Ferramentas Recomendadas
+## 📚 Para Estudar Antes
 
-1. **ChatGPT** (recomendado)
-2. **Claude** (recomendado)
-3. **Gamma App** (gamma.app)
-4. **Beautiful.ai**
-5. **Tome** (tome.app)
+**Conceitos de Sistemas Distribuídos:**
+- CAP Theorem (Consistência, Disponibilidade, Particionamento)
+- Servidor autoritativo vs P2P
+- Escalabilidade horizontal vs vertical
+- Consistência forte vs eventual
+- WebSocket vs HTTP long-polling
 
-## ✨ Destaques do Documento
+**Arquitetura do Projeto:**
+- Docker Compose e orquestração
+- Socket.IO e broadcasting
+- PostgreSQL e ACID
+- Nginx como proxy reverso
+- Game loop de 60 FPS
 
-### Pontos Fortes:
-✅ Cobertura completa de todos os critérios do barema
-✅ 52 slides detalhados prontos para geração
-✅ Diagramas de arquitetura incluídos
-✅ Exemplos de código e configurações
-✅ Métricas e números específicos
-✅ Diferenciais e inovações destacados
-✅ Demonstrações práticas incluídas
-✅ Trabalhos futuros e melhorias
+## ✅ Checklist Rápido
 
-### Estrutura Otimizada para IA:
-✅ Cada slide claramente marcado
-✅ Conteúdo hierarquizado (títulos, subtítulos, bullets)
-✅ Instruções visuais (diagramas, cores, ícones)
-✅ Seções prioritárias identificadas
-✅ Apêndice com guia completo para IA
+**Antes de gerar slides:**
+- [ ] Li o README_APRESENTACAO.md completo
+- [ ] Entendi os diagramas de arquitetura
+- [ ] Revisei conceitos de sistemas distribuídos
 
-## 📝 Personalização Necessária
+**Antes de apresentar:**
+- [ ] Slides gerados e revisados
+- [ ] Screenshots adicionados (slides 1 e 17)
+- [ ] Nome e contato incluídos (slides 1 e 23)
+- [ ] Sistema funcionando
+- [ ] Demo preparada (ao vivo ou vídeo)
+- [ ] Ensaiado 2x (cronometrado)
+- [ ] Tempo: 20-25 minutos ✓
 
-Antes de gerar os slides, você deve:
+## 🎯 Perguntas Esperadas
 
-1. **Slide 1:** Adicionar seu nome e turma
-2. **Slide 52:** Adicionar informações de contato
-3. **Slides de demonstração:** Adicionar screenshots reais
-4. **Ajustar tempo:** Escolher quantidade de slides adequada
+Prepare respostas para:
 
-## 🎓 Critérios de Avaliação vs Slides
+1. **"Por que servidor autoritativo e não P2P?"**
+   - Consistência garantida, anti-cheat, simplicidade
 
-| Critério | Pontos | Seções | Slides |
-|----------|--------|--------|--------|
-| Arquitetura Distribuída | 15 | 2 | 4-7 |
-| Comunicação Eficiente | 15 | 3, 4 | 8-13 |
-| Tolerância a Falhas e Persistência | 15 | 6, 8 | 17-19, 23-25 |
-| Segurança, Escalabilidade, Observabilidade | 15 | 7, 10 | 20-22, 29-31 |
-| Funcionalidade e Criatividade | 20 | 11 | 32-34 |
-| Documentação e Apresentação | 20 | Todas | Todos |
-| **TOTAL** | **100** | **18** | **52** |
+2. **"Como escala para mais jogadores?"**
+   - Salas isoladas + cluster Socket.IO + Redis
 
-## 📚 Documentação Complementar
+3. **"E se o servidor cair?"**
+   - Reconexão automática, health checks, Docker restart
 
-Para estudar antes da apresentação, consulte:
+4. **"Como garante consistência?"**
+   - Servidor único fonte de verdade, snapshot completo
 
-1. `README.md` - Visão geral do projeto
-2. `docs/GUIA_TECNICO.md` - Arquitetura detalhada
-3. `docs/API.md` - Endpoints e eventos Socket.IO
-4. `docs/DATABASE.md` - Schema do banco de dados
-5. `docs/DEPLOY.md` - Infraestrutura e deploy
-6. `docs/SECURITY_REPORT.md` - Análise de segurança
+5. **"Latência é um problema?"**
+   - 30-50ms aceitável, WebSocket otimizado, 60 FPS
 
-## ⚡ Início Rápido
+## 📊 Números Importantes para Mencionar
 
-**Para gerar slides AGORA:**
+- **60 FPS** - Game loop
+- **30-50ms** - Latência típica
+- **6 jogadores** - Por sala
+- **~100 salas** - Capacidade single instance
+- **10-20 KB/s** - Banda por jogador
+- **< 5ms** - Query de ranking
+- **3 microsserviços** - nginx, app, postgres
 
-1. Abra `README_APRESENTACAO.md`
-2. Copie o conteúdo completo (Ctrl+A, Ctrl+C)
-3. Acesse chat.openai.com ou claude.ai
-4. Cole o conteúdo
-5. Aguarde a geração dos slides
-6. Exporte para PowerPoint ou Google Slides
-7. Personalize com suas informações
-8. Pratique a apresentação
+## 🚀 Resultado Final
 
-**Tempo estimado:** 15-30 minutos para gerar e personalizar
+**Você terá:**
+- Apresentação focada de 20-25 minutos
+- Ênfase em infraestrutura distribuída
+- Conteúdo técnico aprofundado
+- Diagramas profissionais
+- Cobertura 100% do barema
 
-## 🎯 Checklist Final
-
-Antes da apresentação:
-- [ ] Slides gerados a partir do README_APRESENTACAO.md
-- [ ] Informações pessoais adicionadas (nome, turma, contato)
-- [ ] Screenshots do projeto incluídos
-- [ ] Sistema testado e funcionando
-- [ ] Demonstração preparada (ao vivo ou vídeo)
-- [ ] Prática realizada (pelo menos 2x)
-- [ ] Documentação técnica revisada
-- [ ] Perguntas potenciais antecipadas
-
-## 💡 Dica Final
-
-O README_APRESENTACAO.md foi criado para maximizar sua nota seguindo exatamente o barema fornecido. Cada seção foi pensada para destacar os aspectos que serão avaliados. Use-o com confiança!
-
-**Boa apresentação! 🚀**
+**Pronto para apresentar! 🎓**
