@@ -3,10 +3,6 @@
 Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO**, **PostgreSQL** e **TypeScript**.  
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
 
-> **📝 Nota sobre TypeScript**: Este projeto foi completamente refatorado de JavaScript para TypeScript para melhorar a manutenibilidade do código e proporcionar uma melhor experiência de desenvolvimento com tipagem estática. Todos os arquivos `.js` foram convertidos para `.ts` com tipos bem definidos para variáveis, funções e estruturas de dados.
-
-> **🔐 Sistema de Autenticação**: O jogo agora possui um sistema completo de login e registro com PostgreSQL 17, onde os jogadores podem criar contas, fazer login ou jogar como convidado. As estatísticas de partidas completas (gols marcados, gols sofridos, vitórias, derrotas, empates) são salvas automaticamente e exibidas em um ranking global.
-
 ---
 
 ## Índice
@@ -620,32 +616,6 @@ Este projeto implementa boas práticas de segurança. Consulte o arquivo [SECURI
 - **Checklist de Produção**: Guia completo para deploy em AWS EC2
 - **Geração de Chaves Seguras**: Como criar JWT_SECRET e senhas fortes
 - **Configuração Docker**: Segurança em desenvolvimento vs produção
-
-### Resumo de Riscos Mitigados
-
-| Risco | Status |
-|-------|--------|
-| SQL Injection | ✅ Mitigado (prepared statements) |
-| Senha padrão em produção | ⚠️ Precisa configuração |
-| JWT Secret exposto | ✅ Corrigido (leitura de `.env`) |
-| Porta do banco exposta | ⚠️ Remover em produção |
-| `.env` versionado | ✅ Prevenido (`.gitignore`) |
-
-Para mais detalhes, **[leia o relatório completo](SECURITY_REPORT.md)**.
-
----
-
-## Roteiro de Desenvolvimento Futuro
-
-Algumas ideias de evolução do projeto:
-
-- Sistema de autenticação / login simples (apelidos persistentes).
-- Ranking de jogadores (gols, vitórias, partidas jogadas).
-- Sala de espera / lobby antes de entrar nos jogos.
-- Modo espectador.
-- Suporte a dispositivos móveis (controles touch).
-- Efeitos visuais e sonoros mais elaborados.
-- Testes automatizados para módulos de jogo (game loop, colisões, etc.).
 
 ---
 
