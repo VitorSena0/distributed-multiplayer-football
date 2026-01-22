@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express'; // Importa o roteador do Express e os tipos Request e Response
 import { AuthService } from '../services/authService'; // Importa o serviço de autenticação
-import { getGlobalRanking } from '../services/rankingService'; //pega o ranking do redis
 
 // Cria um roteador Express para gerenciar as rotas de autenticação
 const router = Router();
@@ -113,7 +112,9 @@ router.post('/verify', (req: Request, res: Response) => {
 // Rota para buscar estatísticas de um usuário
 router.get('/stats/:userId', async (req: Request, res: Response) => {
     try {
-        const userId = parseInt(req.params.userId);
+        const userIdParam = req.params.userId;
+        const userIdStr = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam; // Verifica se o id do parâmetro do usuário é uma string ou um array de strings
+        const userId = Number.parseInt(userIdStr ?? '', 10);
 
         if (isNaN(userId)) {
             return res.status(400).json({
@@ -147,17 +148,20 @@ router.get('/stats/:userId', async (req: Request, res: Response) => {
 // Rota para buscar ranking global
 router.get('/ranking', async (req: Request, res: Response) => {
     try {
-        const limit = parseInt(req.query.limit as string) || 10;
-        const rawRanking = await getGlobalRanking(limit);
+        const limitParam = req.query.limit;
+        const limitStr =
+            typeof limitParam === 'string'
+                ? limitParam
+                : Array.isArray(limitParam) && typeof limitParam[0] === 'string'
+                    ? limitParam[0]
+                    : undefined;
 
-        //formata a saida do redis
-        const ranking = [];
-        for (let i = 0; i < rawRanking.length; i += 2) {
-            ranking.push({
-                userId: Number(rawRanking[i]),
-                score: Number(rawRanking[i + 1]),
-            });
-        }
+        const parsed = limitStr ? Number.parseInt(limitStr, 10) : NaN;
+        const limit = Number.isNaN(parsed) ? 10 : parsed;
+
+        // Chama o serviço de autenticação para obter o ranking global, retorna os dados completos do usuário
+        const ranking = await AuthService.getGlobalRanking(limit);
+
         
         return res.status(200).json({
             success: true,

@@ -261,23 +261,32 @@ export class AuthService {
         const pipeline = redis.pipeline();
         userIds.forEach((id) => pipeline.hgetall(PLAYER_HASH_PREFIX + id));
         const results = await pipeline.exec();
+        if (!results) {
+          return [];
+        }
 
-        const ranking = results.map((r, idx) => {
-          const data = (r && r[1]) || {};
+        type HashResult = [Error | null, Record<string, string> | null];
+
+        const ranking = (results as HashResult[]).map(([err, data], idx) => {
+          const hash = err ? {} : data || {};
+
           return {
-            user_id: Number(data.user_id || userIds[idx]),
-            username: data.username || 'Unknown',
-            total_goals_scored: Number(data.total_goals_scored || 0),
-            total_goals_conceded: Number(data.total_goals_conceded || 0),
-            goals_difference: Number(data.goals_difference || 0),
-            wins: Number(data.wins || 0),
-            losses: Number(data.losses || 0),
-            draws: Number(data.draws || 0),
-            matches_played: Number(data.matches_played || 0)
+            user_id: Number(hash.user_id || userIds[idx]),
+            username: hash.username || 'Unknown',
+            total_goals_scored: Number(hash.total_goals_scored || 0),
+            total_goals_conceded: Number(hash.total_goals_conceded || 0),
+            goals_difference: Number(hash.goals_difference || 0),
+            wins: Number(hash.wins || 0),
+            losses: Number(hash.losses || 0),
+            draws: Number(hash.draws || 0),
+            matches_played: Number(hash.matches_played || 0)
           } as UserStats;
         });
 
-        const needDbFetch = ranking.some((r) => !r.username || r.username === 'Unknown');
+        const needDbFetch =
+          ranking.some((r) => !r.username || r.username === 'Unknown') ||
+          ranking.length < limit; // se faltam jogadores no cache, recarrega do DB
+
         if (!needDbFetch) {
           return ranking;
         }
@@ -290,7 +299,6 @@ export class AuthService {
                 ps.goals_difference, ps.wins, ps.losses, ps.draws, ps.matches_played
          FROM player_stats ps
          JOIN users u ON u.id = ps.user_id
-         WHERE ps.matches_played > 0
          ORDER BY ps.wins DESC, ps.goals_difference DESC, ps.total_goals_scored DESC
          LIMIT $1`,
         [limit]
@@ -332,7 +340,6 @@ export class AuthService {
                   ps.goals_difference, ps.wins, ps.losses, ps.draws, ps.matches_played
            FROM player_stats ps
            JOIN users u ON u.id = ps.user_id
-           WHERE ps.matches_played > 0
            ORDER BY ps.wins DESC, ps.goals_difference DESC, ps.total_goals_scored DESC
            LIMIT $1`,
           [limit]

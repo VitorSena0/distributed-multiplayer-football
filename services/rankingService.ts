@@ -1,4 +1,4 @@
-import { redis } from "./redisClient";
+import redis from "./redisClient";
 
 const RANKING_KEY = "global:ranking";
 
