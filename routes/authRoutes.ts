@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'; // Importa o roteador do Express e os tipos Request e Response
 import { AuthService } from '../services/authService'; // Importa o serviço de autenticação
+import { getGlobalRanking } from '../services/rankingService'; //pega o ranking do redis
 
 // Cria um roteador Express para gerenciar as rotas de autenticação
 const router = Router();
@@ -147,7 +148,16 @@ router.get('/stats/:userId', async (req: Request, res: Response) => {
 router.get('/ranking', async (req: Request, res: Response) => {
     try {
         const limit = parseInt(req.query.limit as string) || 10;
-        const ranking = await AuthService.getGlobalRanking(limit);
+        const rawRanking = await getGlobalRanking(limit);
+
+        //formata a saida do redis
+        const ranking = [];
+        for (let i = 0; i < rawRanking.length; i += 2) {
+            ranking.push({
+                userId: Number(rawRanking[i]),
+                score: Number(rawRanking[i + 1]),
+            });
+        }
         
         return res.status(200).json({
             success: true,

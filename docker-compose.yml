@@ -18,6 +18,14 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+      image: redis:7
+      container_name: multiplayer-soccer-redis
+      ports:
+        - "127.0.0.1:6379:6379" # opcional, só se quiser acessar local
+      volumes:
+        - redis_data:/data
+
   app:
     image: multiplayer-soccer-app:latest
     container_name: multiplayer-soccer-app
@@ -34,6 +42,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
+
 
   nginx:
     image: multiplayer-soccer-nginx:latest
@@ -45,4 +56,5 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
