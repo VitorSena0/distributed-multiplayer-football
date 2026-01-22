@@ -1,0 +1,35 @@
+config:
+  target: "http://localhost" # Aponta para o Nginx na porta 80
+  socketio:
+    transports: ["websocket"] # Força upgrade imediato para WebSocket
+
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Aquecimento"
+    - duration: 60
+      arrivalRate: 20
+      rampTo: 50
+      name: "Subindo a Carga"
+    - duration: 60
+      arrivalRate: 50
+      name: "Pico Sustentado"
+
+scenarios:
+  - engine: "socketio"
+    name: "Fluxo de Jogador"
+    flow:
+      - think: 1
+      # Simula entrada na sala
+      - emit:
+          channel: "enter_room" # Ajuste conforme seu evento de backend
+          data: 
+             playerId: "load_test_user"
+             roomId: "room-1"
+      - think: 5
+      # Simula movimento
+      - emit:
+          channel: "player_move"
+          data: 
+             x: 10
+             y: 20

@@ -112,7 +112,13 @@ router.post('/verify', (req: Request, res: Response) => {
 // Rota para buscar estatísticas de um usuário
 router.get('/stats/:userId', async (req: Request, res: Response) => {
     try {
-        const userId = parseInt(req.params.userId);
+        const userIdParam = req.params.userId;
+            if (!userIdParam) {
+            return res.status(400).json({ error: "userId é obrigatório" });
+            }
+
+            const userId = parseInt(userIdParam, 10);
+
 
         if (isNaN(userId)) {
             return res.status(400).json({
@@ -146,7 +152,16 @@ router.get('/stats/:userId', async (req: Request, res: Response) => {
 // Rota para buscar ranking global
 router.get('/ranking', async (req: Request, res: Response) => {
     try {
-        const limit = parseInt(req.query.limit as string) || 10;
+        const limitParam = req.query.limit;
+
+        if (typeof limitParam !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'Parâmetro limit inválido'
+        });
+        }
+
+        const limit = parseInt(limitParam, 10);
         const ranking = await AuthService.getGlobalRanking(limit);
         
         return res.status(200).json({
