@@ -592,12 +592,13 @@ docker service logs -f football_app
 docker stack rm football
 ```
 
-#### Documentação Completa
+#### 📚 Documentação Completa
 
 - 📘 **[Quick Start](docs/DOCKER_SWARM_QUICKSTART.md)** - Guia rápido
 - 📘 **[Interface Gráfica](docs/DOCKER_SWARM_PORTAINER.md)** - Portainer para gerenciamento visual
 - 📘 **[Guia Completo Local](docs/DOCKER_SWARM.md)** - Tutorial detalhado com explicações
 - 📘 **[Deploy AWS](docs/DOCKER_SWARM_AWS.md)** - Cluster multi-node na AWS com ALB
+- 🔧 **[Fix: Sincronização de Salas](docs/DOCKER_SWARM_REDIS_FIX.md)** - Solução para múltiplas réplicas
 
 **Quando usar Swarm?**
 - Produção com múltiplos servidores

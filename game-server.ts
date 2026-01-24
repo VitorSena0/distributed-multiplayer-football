@@ -2,6 +2,8 @@ import express from 'express';
 import { Server as SocketIOServer } from 'socket.io'; 
 import http from 'http'; 
 import 'dotenv/config'; 
+import { createAdapter } from '@socket.io/redis-adapter';
+import { createClient } from 'redis';
 
 import { rooms } from './game/roomManager';
 import { gameLoop } from './game/gameLoop';
@@ -25,6 +27,36 @@ const io = new SocketIOServer(server, {
     },
     allowEIO3: true, 
 });
+
+// Configurar Redis Adapter para sincronizar Socket.IO entre múltiplas réplicas
+async function setupRedisAdapter() {
+    try {
+        const redisHost = process.env.REDIS_HOST || 'redis';
+        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+        
+        // Criar clientes Redis para pub/sub
+        const pubClient = createClient({ 
+            socket: {
+                host: redisHost, 
+                port: redisPort 
+            }
+        });
+        const subClient = pubClient.duplicate();
+
+        // Conectar os clientes
+        await Promise.all([pubClient.connect(), subClient.connect()]);
+
+        // Configurar o adapter do Socket.IO
+        io.adapter(createAdapter(pubClient, subClient));
+        
+        console.log('✅ Socket.IO Redis Adapter configurado - réplicas sincronizadas');
+    } catch (error) {
+        console.error('❌ Erro ao configurar Redis Adapter:', error);
+        console.error('⚠️  Continuando sem sincronização entre réplicas');
+        // Não mata o servidor, apenas continua sem o adapter
+        // Isso permite funcionar em desenvolvimento sem Redis
+    }
+}
 
 // Rotas da API de autenticação
 app.use('/api/auth', authRoutes);
@@ -56,7 +88,10 @@ async function startServer() {
         // 1. Aguarda o banco de dados criar as tabelas
         await initializeDatabase();
 
-        // 2. Só inicia o servidor se o banco estiver OK
+        // 2. Configurar Redis Adapter para Swarm
+        await setupRedisAdapter();
+
+        // 3. Só inicia o servidor se o banco estiver OK
         server.listen(PORT, '0.0.0.0', () => { 
             console.log(`⚽ Servidor Multiplayer rodando na porta ${PORT}`);
         });
