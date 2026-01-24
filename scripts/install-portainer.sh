@@ -75,9 +75,12 @@ echo ""
 echo "⏳ Aguardando Portainer inicializar..."
 
 # Aguardar até Portainer estar rodando
+PORTAINER_RUNNING=false
 for i in {1..30}; do
     if docker service ps portainer 2>/dev/null | grep -q "Running"; then
+        echo ""
         echo "✅ Portainer está rodando!"
+        PORTAINER_RUNNING=true
         break
     fi
     sleep 2
@@ -85,6 +88,18 @@ for i in {1..30}; do
 done
 
 echo ""
+
+# Verificar se inicializou com sucesso
+if [ "$PORTAINER_RUNNING" = false ]; then
+    echo ""
+    echo "⚠️  Portainer demorou para inicializar"
+    echo "Verificando status..."
+    docker service ps portainer
+    echo ""
+    echo "Você pode verificar os logs com:"
+    echo "  docker service logs portainer"
+fi
+
 echo ""
 echo "================================================"
 echo "  Portainer instalado e rodando!"
