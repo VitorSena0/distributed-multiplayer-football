@@ -2,7 +2,27 @@
 
 Guia rápido para começar a usar Docker Swarm com o Multiplayer Soccer.
 
-## 🚀 Deploy Local (3 comandos)
+## 🖥️ Prefere Interface Gráfica?
+
+**Novo!** Use o **Portainer** para gerenciar tudo visualmente:
+
+```bash
+# Instalar interface gráfica
+./scripts/install-portainer.sh
+
+# Acesse: http://localhost:9000
+```
+
+✅ **Mais intuitivo** - Cliques ao invés de comandos  
+✅ **Visualização gráfica** - Ver status de todos os serviços  
+✅ **Logs fáceis** - Ver logs com busca e filtros  
+✅ **Escalar visualmente** - Usar slider para ajustar réplicas
+
+📘 **Guia completo:** [DOCKER_SWARM_PORTAINER.md](./DOCKER_SWARM_PORTAINER.md)
+
+---
+
+## 🚀 Deploy Local (Via Terminal)
 
 ### Opção 1: Scripts Automatizados (Recomendado)
 
@@ -89,6 +109,46 @@ docker service rollback football_app
 docker stack rm football
 docker swarm leave --force
 ```
+
+---
+
+## 🖥️ Interface Gráfica (Portainer)
+
+**Alternativa aos comandos de terminal:**
+
+### Instalação
+
+```bash
+./scripts/install-portainer.sh
+# Acesse: http://localhost:9000
+```
+
+### O que você pode fazer com Portainer
+
+✅ **Ver todos os serviços** - Tabela visual com status  
+✅ **Escalar com slider** - Arrastar para ajustar réplicas  
+✅ **Logs com busca** - Filtrar logs facilmente  
+✅ **Monitorar recursos** - Gráficos de CPU/RAM  
+✅ **Deploy visual** - Upload YAML e clique  
+✅ **Rolling updates** - Atualizar com cliques
+
+### Exemplos visuais
+
+**Ver serviços:**
+- Menu → Swarm → Services
+- Tabela com réplicas, status, ações
+
+**Escalar:**
+- Clique no serviço → Scale service
+- Use slider: 3 → 5 réplicas
+- Apply
+
+**Ver logs:**
+- Clique no serviço → Service logs
+- Auto-refresh ativado
+- Buscar por texto
+
+📘 **Guia completo:** [DOCKER_SWARM_PORTAINER.md](./DOCKER_SWARM_PORTAINER.md)
 
 ---
 

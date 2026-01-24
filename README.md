@@ -544,6 +544,7 @@ Para ambientes que precisam de **alta disponibilidade**, **escalabilidade horizo
 
 #### Quick Start - Swarm Local
 
+**Via Terminal:**
 ```bash
 # 1. Inicializar Swarm
 ./scripts/swarm-init.sh
@@ -555,7 +556,16 @@ Para ambientes que precisam de **alta disponibilidade**, **escalabilidade horizo
 ./scripts/deploy-local.sh
 ```
 
-Acesse: `http://localhost`
+**Via Interface Gráfica (Portainer):**
+```bash
+# Instalar Portainer
+./scripts/install-portainer.sh
+
+# Acesse: http://localhost:9000
+# Gerenciar tudo com cliques!
+```
+
+Acesse o jogo: `http://localhost`
 
 #### Características do Swarm
 
@@ -564,6 +574,7 @@ Acesse: `http://localhost`
 - ✅ **Alta disponibilidade**: Se um container cair, outro assume
 - ✅ **Rolling updates**: Atualizar sem downtime
 - ✅ **Escalabilidade**: Adicionar/remover réplicas facilmente
+- ✅ **Interface gráfica**: Portainer para gerenciamento visual
 
 #### Comandos úteis
 
@@ -584,6 +595,7 @@ docker stack rm football
 #### Documentação Completa
 
 - 📘 **[Quick Start](docs/DOCKER_SWARM_QUICKSTART.md)** - Guia rápido
+- 📘 **[Interface Gráfica](docs/DOCKER_SWARM_PORTAINER.md)** - Portainer para gerenciamento visual
 - 📘 **[Guia Completo Local](docs/DOCKER_SWARM.md)** - Tutorial detalhado com explicações
 - 📘 **[Deploy AWS](docs/DOCKER_SWARM_AWS.md)** - Cluster multi-node na AWS com ALB
 
