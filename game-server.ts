@@ -30,29 +30,53 @@ const io = new SocketIOServer(server, {
 
 // Configurar Redis Adapter para sincronizar Socket.IO entre múltiplas réplicas
 async function setupRedisAdapter() {
+    const redisHost = process.env.REDIS_HOST || 'redis';
+    const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+    
+    let pubClient;
+    let subClient;
+    
     try {
-        const redisHost = process.env.REDIS_HOST || 'redis';
-        const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
-        
-        // Criar clientes Redis para pub/sub
-        const pubClient = createClient({ 
+        // Criar cliente de publicação
+        pubClient = createClient({ 
             socket: {
                 host: redisHost, 
                 port: redisPort 
             }
         });
-        const subClient = pubClient.duplicate();
+        
+        // Criar cliente de subscrição (duplicado do pub)
+        try {
+            subClient = pubClient.duplicate();
+        } catch (duplicateError) {
+            console.error('❌ Erro ao duplicar cliente Redis para subscriber:', duplicateError);
+            throw duplicateError;
+        }
 
-        // Conectar os clientes
-        await Promise.all([pubClient.connect(), subClient.connect()]);
+        // Conectar ambos os clientes
+        try {
+            await Promise.all([
+                pubClient.connect(),
+                subClient.connect()
+            ]);
+        } catch (connectError) {
+            console.error('❌ Erro ao conectar clientes Redis (pub/sub):', connectError);
+            throw connectError;
+        }
 
         // Configurar o adapter do Socket.IO
         io.adapter(createAdapter(pubClient, subClient));
         
-        console.log('✅ Socket.IO Redis Adapter configurado - réplicas sincronizadas');
+        console.log(`✅ Socket.IO Redis Adapter configurado (${redisHost}:${redisPort}) - réplicas sincronizadas`);
     } catch (error) {
-        console.error('❌ Erro ao configurar Redis Adapter:', error);
-        console.error('⚠️  Continuando sem sincronização entre réplicas');
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('❌ Falha ao configurar Redis Adapter para sincronização entre réplicas:', {
+            host: redisHost,
+            port: redisPort,
+            error: errorMessage,
+            stack: error instanceof Error ? error.stack : undefined
+        });
+        console.error('⚠️  Continuando sem sincronização entre réplicas - funciona apenas em modo single-instance');
         // Não mata o servidor, apenas continua sem o adapter
         // Isso permite funcionar em desenvolvimento sem Redis
     }
