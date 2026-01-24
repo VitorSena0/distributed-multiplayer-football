@@ -203,17 +203,17 @@ Antes de fazer o deploy, configure as variáveis:
 ```bash
 # Criar arquivo .env na raiz do projeto
 cat > .env << EOF
-DB_USER=postgres
-DB_PASSWORD=postgres_secure_password_123
+DB_USER=postgres 
+DB_PASSWORD=postgres_secure_password_123 # A senha que colocar aqui tem que ser a mesma do serviço postgres, para saber a sua 
 DB_NAME=football_db
-JWT_SECRET=$(openssl rand -hex 64)
+JWT_SECRET=$(openssl rand -hex 64) # Significa que vai gerar uma string aleatória segura
 EOF
 ```
 
 **Por que isso é importante:**
 - `JWT_SECRET`: Chave secreta para autenticação (deve ser único e seguro)
 - `DB_PASSWORD`: Senha do banco (troque em produção!)
-- O Swarm vai ler essas variáveis do arquivo `.env`
+- O Swarm vai ler essas variáveis do arquivo `.env` e injetar nos containers, com isso não precisa hardcodar no `docker-compose.swarm.yml` e nem no código fonte.
 
 ### Passo 4: Fazer o deploy da stack no Swarm
 

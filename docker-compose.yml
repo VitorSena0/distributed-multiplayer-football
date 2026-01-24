@@ -1,8 +1,8 @@
-version: '3.8'
 
 services:
   # Banco de dados PostgreSQL
   postgres:
+  
     image: postgres:17
     container_name: multiplayer-soccer-db
     environment:
@@ -36,7 +36,7 @@ services:
     restart: unless-stopped
 
   app:
-    image: multiplayer-soccer-app:latest
+    image: multiplayer-soccer-app:v5
     container_name: multiplayer-soccer-app
     environment:
       DB_HOST: postgres
