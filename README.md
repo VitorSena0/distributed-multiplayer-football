@@ -538,6 +538,66 @@ Fluxo típico:
 
 	 - `http://localhost` (porta 80 → Nginx → app:3000)
 
+### 3. Docker Swarm (Orquestração e Cluster)
+
+Para ambientes que precisam de **alta disponibilidade**, **escalabilidade horizontal** e **múltiplos servidores**, use Docker Swarm:
+
+#### Quick Start - Swarm Local
+
+```bash
+# 1. Inicializar Swarm
+./scripts/swarm-init.sh
+
+# 2. Build das imagens
+./scripts/build-images.sh
+
+# 3. Deploy da stack
+./scripts/deploy-local.sh
+```
+
+Acesse: `http://localhost`
+
+#### Características do Swarm
+
+- ✅ **Múltiplas réplicas**: 3 instâncias do app rodando simultaneamente
+- ✅ **Load balancing**: Distribuição automática de tráfego
+- ✅ **Alta disponibilidade**: Se um container cair, outro assume
+- ✅ **Rolling updates**: Atualizar sem downtime
+- ✅ **Escalabilidade**: Adicionar/remover réplicas facilmente
+
+#### Comandos úteis
+
+```bash
+# Ver serviços
+docker service ls
+
+# Escalar o app
+docker service scale football_app=5
+
+# Ver logs
+docker service logs -f football_app
+
+# Remover stack
+docker stack rm football
+```
+
+#### Documentação Completa
+
+- 📘 **[Quick Start](docs/DOCKER_SWARM_QUICKSTART.md)** - Guia rápido
+- 📘 **[Guia Completo Local](docs/DOCKER_SWARM.md)** - Tutorial detalhado com explicações
+- 📘 **[Deploy AWS](docs/DOCKER_SWARM_AWS.md)** - Cluster multi-node na AWS com ALB
+
+**Quando usar Swarm?**
+- Produção com múltiplos servidores
+- Alta disponibilidade necessária
+- Precisa escalar horizontalmente
+- Deploy em cluster AWS/Azure/GCP
+
+**Quando usar Docker Compose?**
+- Desenvolvimento local
+- Servidor único
+- Testes rápidos
+
 ---
 
 ## Deploy em Produção (AWS EC2 + Nginx)
