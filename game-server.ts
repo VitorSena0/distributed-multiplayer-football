@@ -41,8 +41,19 @@ async function setupRedisAdapter() {
         pubClient = createClient({ 
             socket: {
                 host: redisHost, 
-                port: redisPort 
-            }
+                port: redisPort,
+                // Configurações para resolver DNS no Docker Swarm
+                family: 4,  // Force IPv4
+                reconnectStrategy: (retries) => {
+                    if (retries > 10) {
+                        console.error('❌ Redis: Máximo de tentativas de reconexão atingido');
+                        return new Error('Too many retries');
+                    }
+                    return Math.min(retries * 100, 3000);
+                }
+            },
+            // Desabilita verificação de disponibilidade offline
+            disableOfflineQueue: false
         });
         
         // Criar cliente de subscrição (duplicado do pub)
