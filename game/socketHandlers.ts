@@ -1,7 +1,7 @@
 // Importa constantes e funções auxiliares do jogo
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { MAX_PLAYERS_PER_ROOM } from './constants';
-import { allocateRoom, buildGameState, cleanupRoomIfEmpty } from './roomManager';
+import { allocateRoom, buildGameState, cleanupRoomIfEmpty, syncRoomToRedis } from './roomManager';
 import { checkRestartConditions, startNewMatch } from './match';
 import { PlayerInput } from './types';
 import { AuthService } from '../services/authService';
@@ -12,7 +12,7 @@ const loggedInUsers = new Map<number, string>();
 // Registra todos os handlers de eventos do Socket.IO relacionados ao jogo
 export function registerSocketHandlers(io: SocketIOServer): void {
     // Dispara sempre que um novo cliente se conecta ao servidor
-    io.on('connection', (socket: Socket) => {
+    io.on('connection', async (socket: Socket) => {
         // ID da sala requisitada pelo cliente (via query string), se existir
         const requestedRoomId = socket.handshake.query?.roomId as string | undefined;
         
@@ -42,8 +42,8 @@ export function registerSocketHandlers(io: SocketIOServer): void {
             loggedInUsers.set(userId, socket.id);
         }
 
-        // Aloca o jogador em uma sala (nova ou existente)
-        const allocation = allocateRoom(requestedRoomId);
+        // Aloca o jogador em uma sala (nova ou existente) - AGORA ASYNC
+        const allocation = await allocateRoom(requestedRoomId);
 
         // Se a sala estiver cheia, informa o cliente e encerra a conexão
         if (allocation.error === 'room-full') {
@@ -89,6 +89,10 @@ export function registerSocketHandlers(io: SocketIOServer): void {
             userId: userId,
             username: displayName,
         };
+
+        // 🔄 Sincroniza sala com Redis após adicionar jogador
+        await syncRoomToRedis(room);
+        console.log(`✅ Jogador ${displayName} (${socket.id}) entrou na sala ${room.id} (time ${team})`);
 
         // Informa ao cliente em qual sala ele entrou e quantos jogadores existem
         socket.emit('roomAssigned', { // Indica que o jogador foi atribuído a uma sala
@@ -166,7 +170,7 @@ export function registerSocketHandlers(io: SocketIOServer): void {
         });
 
         // Quando o jogador desconecta do servidor
-        socket.on('disconnect', () => {
+        socket.on('disconnect', async () => {
             // Para o envio de pings para este cliente
             clearInterval(pingInterval);
             console.log('Jogador desconectado:', socket.id);
@@ -189,6 +193,9 @@ export function registerSocketHandlers(io: SocketIOServer): void {
                 // Garante que o jogador seja removido da lista de prontos
                 room.playersReady.delete(socket.id);
 
+                // 🔄 Sincroniza sala com Redis após remover jogador
+                await syncRoomToRedis(room);
+
                 // Notifica os demais jogadores da sala sobre a desconexão
                 io.to(room.id).emit('playerDisconnected', {
                     playerId: socket.id,
@@ -199,8 +206,8 @@ export function registerSocketHandlers(io: SocketIOServer): void {
                 checkRestartConditions(room, io);
             }
 
-            // Se a sala ficar vazia, faz a limpeza de recursos
-            cleanupRoomIfEmpty(room);
+            // Se a sala ficar vazia, faz a limpeza de recursos (local + Redis)
+            await cleanupRoomIfEmpty(room);
         });
     });
 }

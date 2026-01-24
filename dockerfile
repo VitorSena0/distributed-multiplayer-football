@@ -7,6 +7,7 @@ WORKDIR /app
 # Copia apenas package* primeiro para aproveitar cache
 COPY package*.json ./
 
+
 # Instala todas as dependências (incluindo devDependencies para build)
 RUN npm install
 

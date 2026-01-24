@@ -465,9 +465,9 @@ Fluxo recomendado com `.tar`:
 3. **Enviar para a EC2**, junto com o `docker-compose.yml` atualizado:
 
   ```bash
-  scp -i /caminho/chave.pem multiplayer-soccer-app_v2.tar ubuntu@IP_DA_EC2:~/
-  scp -i /caminho/chave.pem multiplayer-soccer-nginx_v1.tar ubuntu@IP_DA_EC2:~/
-  scp -i /caminho/chave.pem docker-compose.yml ubuntu@IP_DA_EC2:~/
+  scp -i /caminho/chave.pem multiplayer-soccer-app_v2.tar ubuntu@IP_DA_EC2:~/home/ubuntu
+  scp -i /caminho/chave.pem multiplayer-soccer-nginx_v1.tar ubuntu@IP_DA_EC2:~/home/ubuntu
+  scp -i /caminho/chave.pem docker-compose.yml ubuntu@IP_DA_EC2:~/home/ubuntu
   ```
 
 4. **Na EC2, carregar as imagens e subir a nova stack**:
@@ -476,7 +476,7 @@ Fluxo recomendado com `.tar`:
   docker load -i multiplayer-soccer-app_v2.tar
   docker load -i multiplayer-soccer-nginx_v1.tar
 
-  docker compose up -d
+  docker-compose up -d
   ```
 
 5. **Convivência entre versões**:

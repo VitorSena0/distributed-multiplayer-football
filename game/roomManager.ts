@@ -1,11 +1,10 @@
 import { BALL_RADIUS, MATCH_DURATION, MAX_PLAYERS_PER_ROOM } from './constants';
 import { Room, Ball, RoomAllocation, GameState } from './types';
+import * as RoomSync from '../services/roomSyncService';
 
-const rooms = new Map<string, Room>(); // Mapa que armazena as salas de jogo, onde a chave é o ID da sala e o valor é o estado da sala
+const rooms = new Map<string, Room>();
 let roomSequence = 1;
 
-
-// Função que retorna o estado inicial padrão da bola em uma sala
 const defaultBallState = (): Ball => ({
     x: 400,
     y: 300,
@@ -16,30 +15,39 @@ const defaultBallState = (): Ball => ({
     lastTouchTeam: null,
 });
 
-// Função que sanitiza o ID da sala para garantir que esteja em um formato válido, ex: "room-1"
 function sanitizeRoomId(roomId: string | undefined): string | null {
     if (typeof roomId !== 'string') return null;
-    const trimmed = roomId.trim().toLowerCase(); // Remove espaços em branco e converte para minúsculas
+    const trimmed = roomId.trim().toLowerCase();
     if (!trimmed) return null;
     const normalized = trimmed
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-_]/g, '')
-        .slice(0, 32); // Limita o comprimento a 32 caracteres
-    return normalized || null; // Retorna null se o ID resultante for uma string vazia
+        .slice(0, 32);
+    return normalized || null;
 }
 
-
-// Função que gera um ID único para uma nova sala
-function generateRoomId(): string {
-    let candidate: string; // Variável para armazenar o ID candidato
-    do {
-        candidate = `room-${roomSequence++}`; // Gera um ID no formato "room-<número sequencial>"
-    } while (rooms.has(candidate)); // Verifica se o ID já existe; se existir, gera outro
-    return candidate;
+async function generateRoomId(): Promise<string> {
+    try {
+        return await RoomSync.generateRoomId();
+    } catch (error) {
+        console.error('Erro ao gerar ID via Redis, usando fallback local:', error);
+        let candidate: string;
+        do {
+            candidate = `room-${roomSequence++}`;
+        } while (rooms.has(candidate));
+        return candidate;
+    }
 }
 
-function createRoom(roomId: string = generateRoomId()): Room {
-    const id = rooms.has(roomId) ? generateRoomId() : roomId; // Se o ID fornecido já existir, gera um novo ID
+async function createRoom(roomId?: string): Promise<Room> {
+    const id = roomId || await generateRoomId();
+    
+    const existingRoom = await RoomSync.getRoom(id);
+    if (existingRoom) {
+        rooms.set(id, existingRoom);
+        return existingRoom;
+    }
+    
     const roomState: Room = {
         id,
         width: 800,
@@ -51,52 +59,64 @@ function createRoom(roomId: string = generateRoomId()): Room {
         matchTime: MATCH_DURATION,
         isPlaying: false,
         isResettingBall: false,
-        nextBallPosition: null, // Posição para onde a bola será movida após o reset
-        ballResetInProgress: false, // Indica se o reset da bola está em andamento
-        lastGoalTime: 0, // Timestamp do último gol marcado
+        nextBallPosition: null,
+        ballResetInProgress: false,
+        lastGoalTime: 0,
         goalCooldown: 500,
         waitingForRestart: false,
-        playersReady: new Set<string>(), // Conjunto para rastrear jogadores prontos para reiniciar o jogo
+        playersReady: new Set<string>(),
     };
+    
     rooms.set(id, roomState);
-    console.log(`Sala criada: ${id}`);
+    await RoomSync.saveRoom(roomState);
+    console.log(`🆕 Sala criada e sincronizada: ${id}`);
     return roomState;
 }
 
-// Função que retorna o número de jogadores em uma sala
 function getPlayerCount(room: Room): number {
     return Object.keys(room.players).length;
 }
 
-// Função que retorna uma sala disponível ou cria uma nova se todas estiverem cheias
-function getOrCreateAvailableRoom(): Room {
+async function getOrCreateAvailableRoom(): Promise<Room> {
+    const allRooms = await RoomSync.getAllRooms();
+    
+    for (const room of allRooms) {
+        rooms.set(room.id, room);
+    }
+    
     for (const room of rooms.values()) {
         if (getPlayerCount(room) < MAX_PLAYERS_PER_ROOM) {
+            console.log(`♻️  Reutilizando sala existente: ${room.id} (${getPlayerCount(room)}/${MAX_PLAYERS_PER_ROOM} jogadores)`);
             return room;
         }
     }
-    return createRoom();
+    
+    return await createRoom();
 }
 
-
-// Função que aloca uma sala com base no ID solicitado ou cria uma nova se necessário
-function allocateRoom(requestedRoomId?: string): RoomAllocation { // requestedRoomId é do tipo string ou undefined
+async function allocateRoom(requestedRoomId?: string): Promise<RoomAllocation> {
     if (requestedRoomId) {
         const sanitized = sanitizeRoomId(requestedRoomId);
         if (!sanitized) {
-            return { room: getOrCreateAvailableRoom() };
+            return { room: await getOrCreateAvailableRoom() };
         }
-        const room = rooms.get(sanitized) || createRoom(sanitized);
+        
+        let room = await RoomSync.getRoom(sanitized);
+        if (!room) {
+            room = await createRoom(sanitized);
+        } else {
+            rooms.set(sanitized, room);
+        }
+        
         if (getPlayerCount(room) < MAX_PLAYERS_PER_ROOM) {
             return { room };
         }
         return { error: 'room-full', roomId: sanitized };
     }
 
-    return { room: getOrCreateAvailableRoom() };
+    return { room: await getOrCreateAvailableRoom() };
 }
 
-// Função que constrói o estado do jogo a ser enviado aos clientes
 function buildGameState(room: Room): GameState {
     return {
         width: room.width,
@@ -111,12 +131,17 @@ function buildGameState(room: Room): GameState {
     };
 }
 
-// Função que remove a sala se estiver vazia
-function cleanupRoomIfEmpty(room: Room): void {
+async function cleanupRoomIfEmpty(room: Room): Promise<void> {
     if (room && getPlayerCount(room) === 0) {
         rooms.delete(room.id);
-        console.log(`Sala removida: ${room.id}`);
+        await RoomSync.deleteRoom(room.id);
+        console.log(`🗑️  Sala removida (local + Redis): ${room.id}`);
     }
+}
+
+async function syncRoomToRedis(room: Room): Promise<void> {
+    await RoomSync.saveRoom(room);
+    await RoomSync.touchRoom(room.id);
 }
 
 export {
@@ -127,4 +152,5 @@ export {
     getOrCreateAvailableRoom,
     buildGameState,
     cleanupRoomIfEmpty,
+    syncRoomToRedis,
 };

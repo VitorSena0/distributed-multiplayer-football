@@ -69,4 +69,7 @@ SELECT
     COUNT(*) as registros
 FROM player_stats;
 
-RAISE NOTICE 'Migração concluída com sucesso!';
+DO $$
+BEGIN
+    RAISE NOTICE 'Migração concluída com sucesso!';
+END $$;
