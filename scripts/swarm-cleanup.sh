@@ -42,12 +42,13 @@ fi
 echo ""
 
 # Perguntar se quer limpar volumes
-read -p "Deseja remover volumes não utilizados? (s/N): " -n 1 -r
+read -p "Deseja remover volumes do projeto football? (s/N): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Ss]$ ]]; then
-    echo "Limpando volumes..."
-    docker volume prune -f
-    echo "✅ Volumes limpos"
+    echo "Limpando volumes do projeto..."
+    # Remover apenas volumes específicos do football
+    docker volume ls --filter "name=football" --format "{{.Name}}" | xargs -r docker volume rm 2>/dev/null || true
+    echo "✅ Volumes do projeto removidos"
 fi
 
 echo ""

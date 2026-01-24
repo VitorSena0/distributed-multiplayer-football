@@ -51,12 +51,18 @@ if [ ! -f ".env" ]; then
     
     if [ -f ".env.example" ]; then
         cp .env.example .env
+        
+        # Gerar JWT_SECRET seguro automaticamente
+        JWT_SECRET=$(openssl rand -hex 64)
+        sed -i "s/JWT_SECRET=.*/JWT_SECRET=$JWT_SECRET/" .env
+        
         echo "✅ Arquivo .env criado"
-        echo "⚠️  IMPORTANTE: Edite o arquivo .env e configure:"
-        echo "   - DB_PASSWORD (senha do banco)"
-        echo "   - JWT_SECRET (chave secreta)"
+        echo "✅ JWT_SECRET gerado automaticamente (seguro)"
         echo ""
-        read -p "Deseja continuar com valores padrão? (s/N): " -n 1 -r
+        echo "⚠️  IMPORTANTE: Edite o arquivo .env e configure:"
+        echo "   - DB_PASSWORD (troque para uma senha segura)"
+        echo ""
+        read -p "Deseja continuar? (s/N): " -n 1 -r
         echo ""
         if [[ ! $REPLY =~ ^[Ss]$ ]]; then
             echo "Abortando. Configure o .env e execute novamente."
@@ -67,6 +73,16 @@ if [ ! -f ".env" ]; then
         echo "Crie um arquivo .env com as variáveis necessárias."
         exit 1
     fi
+fi
+
+# Validar que JWT_SECRET não está vazio ou com valor padrão
+JWT_SECRET=$(grep "^JWT_SECRET=" .env | cut -d '=' -f2)
+if [ -z "$JWT_SECRET" ] || [ "$JWT_SECRET" = "your-secure-jwt-secret-here" ]; then
+    echo "❌ JWT_SECRET não configurado ou usando valor padrão!"
+    echo "Gerando JWT_SECRET seguro..."
+    NEW_JWT_SECRET=$(openssl rand -hex 64)
+    sed -i "s/^JWT_SECRET=.*/JWT_SECRET=$NEW_JWT_SECRET/" .env
+    echo "✅ JWT_SECRET gerado e salvo em .env"
 fi
 
 # Verificar se a stack já existe
