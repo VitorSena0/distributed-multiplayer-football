@@ -1,6 +1,15 @@
-# Multiplayer Soccer
+# Multiplayer Soccer - Sistema Distribuído de Jogo em Tempo Real
 
-Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO**, **PostgreSQL** e **TypeScript**.  
+Jogo de futebol **multiplayer 2D em tempo real** construído com **arquitetura distribuída** utilizando **Node.js**, **Express**, **Socket.IO**, **PostgreSQL**, **Redis** e **TypeScript**.  
+
+Este projeto implementa um sistema distribuído completo com:
+- **Arquitetura de microsserviços** rodando em cluster de contêineres (Docker)
+- **Comunicação em tempo real** via WebSockets (Socket.IO)
+- **Consistência de dados** entre múltiplos clientes
+- **Persistência distribuída** com PostgreSQL e Redis
+- **Tolerância a falhas** e reconexão automática
+- **Escalabilidade horizontal** suportando múltiplos jogadores simultâneos
+
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
 
 ---
@@ -133,30 +142,114 @@ Mais detalhes em [docs/RELATORIO_RANKING_REDIS.md](docs/RELATORIO_RANKING_REDIS.
 
 ---
 
-## Arquitetura
+## Arquitetura Distribuída
 
-- **Node.js + Express**: servidor HTTP responsável por expor uma API mínima e servir os arquivos estáticos do cliente (pasta `public/`).
-- **Socket.IO**: canal de comunicação em tempo real entre cliente e servidor, usado para:
-	- Enviar inputs do jogador para o servidor.
-	- Receber o estado atualizado do jogo (posição de jogadores, bola, placar, timer).
-- **Game Loop no servidor**:
-	- Roda a **60 FPS** (`setInterval` a cada `1000 / 60` ms).
-	- Atualiza física básica: velocidade, posições, colisões, limites de campo, gol, cantos etc.
-- **Timer de partida**:
-	- Atualizado a cada 1 segundo.
-	- Emite eventos de início, atualização de cronômetro e fim de partida.
+Este projeto implementa uma **arquitetura de microsserviços distribuída** em cluster de contêineres:
+
+### 🏗️ Componentes da Arquitetura
+
+1. **Servidor de Aplicação (Node.js + Express)**
+   - Microsserviço responsável pela lógica de negócio
+   - API RESTful para autenticação e estatísticas
+   - Servidor de arquivos estáticos
+   - Orquestração do game loop distribuído
+
+2. **Servidor de Comunicação em Tempo Real (Socket.IO)**
+   - Protocolo WebSocket (sobre TCP) para comunicação bidirecional
+   - Broadcast eficiente de estados do jogo para múltiplos clientes
+   - Gerenciamento de eventos em tempo real (inputs, atualizações, notificações)
+   - Suporte para múltiplas salas simultâneas
+
+3. **Banco de Dados Relacional (PostgreSQL 17)**
+   - Persistência de dados de usuários e autenticação
+   - Armazenamento de estatísticas e histórico de partidas
+   - Garantia de consistência forte (ACID)
+
+4. **Cache Distribuído (Redis 7)**
+   - Cache de ranking global para leitura rápida
+   - Estruturas de dados otimizadas (ZSET para ranking)
+   - Consistência eventual com fallback para PostgreSQL
+
+5. **Proxy Reverso (Nginx)**
+   - Balanceamento de carga
+   - Roteamento de requisições HTTP/WebSocket
+   - Terminação SSL/TLS (quando configurado)
+
+### 🔄 Fluxo de Comunicação
+
+```
+Cliente (Browser) <--WebSocket--> Nginx <--Proxy--> App (Socket.IO) <--TCP--> PostgreSQL/Redis
+       |                                        |
+       +----------HTTP/HTTPS-------------------+
+```
+
+### ⚡ Game Loop Distribuído
+
+- **60 FPS** no servidor para física do jogo (`setInterval` a cada `1000 / 60` ms)
+- Sincronização de estado entre todos os clientes conectados
+- Timer de partida atualizado a cada 1 segundo
+- Eventos de início, atualização de cronômetro e fim de partida
+
+### 🔐 Segurança e Autenticação
+
+- **JWT (JSON Web Tokens)** para autenticação stateless
+- **bcrypt** para hash de senhas (10 salt rounds)
+- Proteção contra SQL Injection via prepared statements
+- Sessões isoladas por usuário
 
 ---
 
 ## Recursos do Jogo
 
-- Multiplayer em tempo real via WebSockets (Socket.IO).
-- Gestão de múltiplas salas independentes.
-- Times **vermelho** e **azul**, com balanceamento automático.
-- Placar e cronômetro visíveis para todos os clientes.
-- Reinício de partida quando o tempo zera e todos clicam em “Jogar Novamente”.
-- Colisão básica jogador x bola, limites de campo e regras de cantos.
-- Detecção de sala cheia com evento específico para o cliente.
+### 🎮 Funcionalidades Principais
+
+- **Multiplayer em tempo real** via WebSockets (Socket.IO)
+- **Gestão de múltiplas salas** independentes e simultâneas
+- Times **vermelho** e **azul** com balanceamento automático
+- Placar e cronômetro sincronizados entre todos os clientes
+- Reinício automático de partida com consenso dos jogadores
+- Física básica: colisão jogador x bola, limites de campo, regras de cantos
+- Detecção de sala cheia com evento específico para o cliente
+
+### 🌐 Sistemas Distribuídos - Requisitos Implementados
+
+#### ✅ Comunicação em Rede
+- **Protocolo TCP/WebSocket** para troca de informações em tempo real
+- Troca eficiente de mensagens (estados, ações, eventos)
+- Broadcast otimizado para múltiplos clientes simultâneos
+
+#### ✅ Consistência de Dados
+- **Sincronização de estados** entre jogadores (posição, pontuação, ações)
+- **Server authoritative**: servidor é fonte única da verdade
+- **Consistência eventual** no Redis com fallback para PostgreSQL (consistência forte)
+
+#### ✅ Gerenciamento de Sessões
+- **Autenticação** de jogadores ao entrar no jogo (JWT)
+- **Criação e gerenciamento de salas** (lobby system)
+- **Balanceamento automático** de times
+
+#### ✅ Tolerância a Falhas
+- **Mecanismos para desconexões** de jogadores
+- **Limpeza automática** de jogadores inativos
+- **Healthchecks** nos containers (PostgreSQL, Redis)
+- **Restart automático** de serviços (Docker)
+
+#### ✅ Escalabilidade
+- **Suporte para múltiplos jogadores** simultâneos (6 por sala)
+- **Múltiplas salas** independentes em paralelo
+- **Cluster de contêineres** com Docker Compose
+- **Cache distribuído** (Redis) para reduzir carga no banco
+
+#### ✅ Persistência de Dados
+- **PostgreSQL**: armazenamento de dados relacionais (usuários, estatísticas)
+- **Redis**: cache de ranking e dados de sessão
+- **Volumes Docker**: persistência de dados entre reinicializações
+
+#### ✅ Interface do Usuário
+- Interface web simples e responsiva
+- Feedback visual em tempo real do estado do jogo
+- Sistema de ranking global
+- Identificação visual de jogadores
 
 ---
 
