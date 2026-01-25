@@ -8,7 +8,7 @@
 ---
 
 ## 1. Apresentação do Projeto
-O Multiplayer Soccer é um jogo de futebol 2D em tempo real, acessado pelo navegador, que demonstra uma arquitetura distribuída com comunicação cliente-servidor, persistência e consistência de dados. O servidor executa a lógica principal do jogo e mantém o estado autoritativo da partida, garantindo que todos os jogadores vejam a mesma evolução do jogo.
+O Multiplayer Soccer é um jogo de futebol 2D em tempo real, acessado pelo navegador. Ele demonstra uma arquitetura distribuída com comunicação cliente-servidor, persistência e consistência de dados. O servidor executa a lógica principal do jogo e mantém o estado autoritativo da partida, garantindo que todos os jogadores vejam a mesma evolução do jogo.
 
 ---
 
@@ -119,4 +119,3 @@ Para ambiente completo: `docker compose up`.
 
 ## 8. Conclusão
 O Multiplayer Soccer atende aos requisitos da disciplina ao combinar comunicação em tempo real, persistência, consistência e tolerância a falhas dentro de uma arquitetura distribuída. O projeto está pronto para apresentação e demonstração, com documentação clara e base para evolução futura.
-

@@ -35,7 +35,7 @@ Documento de apoio para montar os **slides de apresentação** conforme o barema
 - **Modelo cliente-servidor** com servidor autoritativo.
 - O servidor executa o **game loop** (60 FPS) e o **timer** (1 Hz).
 - **Serviços separados em contêineres** (app, banco, cache, proxy).
-- **Microserviços na prática:** cada contêiner com responsabilidade única.
+- **Arquitetura multi-serviço containerizada:** cada contêiner com responsabilidade única.
 - Base pronta para escalar horizontalmente com múltiplas instâncias.
 
 ---
@@ -132,7 +132,7 @@ Documento de apoio para montar os **slides de apresentação** conforme o barema
 ## 15. Critérios do Barema — Como Atendemos
 - **Aspectos Técnicos:** arquitetura distribuída, comunicação eficiente, segurança e persistência.
 - **Funcionalidade:** jogo real-time com salas e placar consistente.
-- **Criatividade:** futebol multiplayer top‑down com ranking global.
+- **Criatividade:** futebol multiplayer top-down com ranking global.
 - **Documentação/Apresentação:** README + documentos técnicos + slides.
 
 ---
@@ -141,4 +141,3 @@ Documento de apoio para montar os **slides de apresentação** conforme o barema
 - Escalar com Redis Adapter + balanceador.
 - Observabilidade avançada (metrics e tracing).
 - Testes automatizados de carga.
-
