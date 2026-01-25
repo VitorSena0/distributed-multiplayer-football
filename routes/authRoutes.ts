@@ -113,12 +113,8 @@ router.post('/verify', (req: Request, res: Response) => {
 router.get('/stats/:userId', async (req: Request, res: Response) => {
     try {
         const userIdParam = req.params.userId;
-            if (!userIdParam) {
-            return res.status(400).json({ error: "userId é obrigatório" });
-            }
-
-            const userId = parseInt(userIdParam, 10);
-
+        const userIdStr = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam; // Verifica se o id do parâmetro do usuário é uma string ou um array de strings
+        const userId = Number.parseInt(userIdStr ?? '', 10);
 
         if (isNaN(userId)) {
             return res.status(400).json({
@@ -153,16 +149,19 @@ router.get('/stats/:userId', async (req: Request, res: Response) => {
 router.get('/ranking', async (req: Request, res: Response) => {
     try {
         const limitParam = req.query.limit;
+        const limitStr =
+            typeof limitParam === 'string'
+                ? limitParam
+                : Array.isArray(limitParam) && typeof limitParam[0] === 'string'
+                    ? limitParam[0]
+                    : undefined;
 
-        if (typeof limitParam !== 'string') {
-        return res.status(400).json({
-            success: false,
-            message: 'Parâmetro limit inválido'
-        });
-        }
+        const parsed = limitStr ? Number.parseInt(limitStr, 10) : NaN;
+        const limit = Number.isNaN(parsed) ? 10 : parsed;
 
-        const limit = parseInt(limitParam, 10);
+        // Chama o serviço de autenticação para obter o ranking global, retorna os dados completos do usuário
         const ranking = await AuthService.getGlobalRanking(limit);
+
         
         return res.status(200).json({
             success: true,

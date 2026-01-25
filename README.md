@@ -90,6 +90,26 @@ Um ranking TOP 10 é exibido no lado esquerdo da tela do jogo, mostrando:
 
 O ranking é ordenado por: Vitórias > Saldo de Gols > Total de Gols Marcados
 
+#### Como o Ranking funciona (Redis + Postgres)
+
+- Redis mantém:
+	- ZSET `global_ranking` com um score composto (vitórias, saldo de gols, gols marcados)
+	- Hash por usuário `player:<userId>` com `username` e estatísticas
+- Na consulta:
+	- Busca primeiro no Redis; se o cache estiver incompleto ou com dados faltando, faz fallback ao Postgres e repovoa o Redis.
+	- Usuários com 0 partidas também aparecem (ordenados pelos critérios acima).
+
+Comandos úteis para inspecionar o Redis em dev/QA:
+
+```bash
+docker-compose exec redis redis-cli ping
+docker-compose exec redis redis-cli zrange global_ranking 0 -1 WITHSCORES
+docker-compose exec redis redis-cli hgetall player:<userId>
+docker-compose logs -f redis
+```
+
+Mais detalhes em [docs/RELATORIO_RANKING_REDIS.md](docs/RELATORIO_RANKING_REDIS.md) e visão geral em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+
 ### 🎮 Identificação de Jogadores
 
 - **Usuários registrados**: O nome de usuário é exibido acima do jogador no jogo
@@ -150,6 +170,7 @@ O ranking é ordenado por: Vitórias > Saldo de Gols > Total de Gols Marcados
 	- Socket.IO
 	- TypeScript
 	- PostgreSQL 17
+	- Redis 7 (cache/ranking)
 	- bcryptjs (criptografia de senhas)
 	- jsonwebtoken (JWT para autenticação)
 - **Cliente**:
@@ -159,7 +180,9 @@ O ranking é ordenado por: Vitórias > Saldo de Gols > Total de Gols Marcados
 	- Canvas / DOM
 - **Banco de Dados**:
 	- PostgreSQL 17
+	- Redis 7
 	- pg (driver Node.js)
+	- ioredis (cliente Redis)
 - **Infra / Deploy**:
 	- Docker / Docker Compose
 	- Nginx (como proxy reverso)
@@ -479,10 +502,12 @@ Acesse em:
 
 - `http://localhost:3000`
 
-### 2. Docker Compose (app + Nginx)
+### 2. Docker Compose (Postgres + Redis + App + Nginx)
 
-O arquivo `docker-compose.yml` define dois serviços:
+O arquivo `docker-compose.yml` define quatro serviços:
 
+- `postgres`: banco PostgreSQL 17 (inicializa com `database/schema.sql`)
+- `redis`: Redis 7 para ranking/cache
 - `app`: imagem `multiplayer-soccer-app:latest`
 - `nginx`: imagem `multiplayer-soccer-nginx:latest`, expondo porta **80** e fazendo proxy para `app:3000`.
 
@@ -510,7 +535,7 @@ Fluxo típico:
 	 docker-compose up
 	 ```
 
-4. Acessar no navegador:
+ 4. Acessar no navegador:
 
 	 - `http://localhost` (porta 80 → Nginx → app:3000)
 
@@ -566,6 +591,11 @@ DB_NAME=football_db
 DB_USER=postgres
 DB_PASSWORD=postgres
 
+# Configuração do Redis (cache/ranking)
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
 # Configuração JWT (MUDE ESTE SECRET EM PRODUÇÃO! Consulte a seção de Segurança abaixo para gerar um secret forte com o comando crypto.)
 JWT_SECRET=your-secure-jwt-secret-here # node -e "console.log(require('crypto').randomBytes(64).toString('hex'))" Gera um secrete forte
 
@@ -595,6 +625,9 @@ import 'dotenv/config';
 | `DB_NAME` | `football_db` | Nome do banco de dados |
 | `DB_USER` | `postgres` | Usuário do PostgreSQL |
 | `DB_PASSWORD` | `postgres` | Senha do PostgreSQL |
+| `REDIS_HOST` | `redis` | Host do Redis (em Docker Compose, o nome do serviço) |
+| `REDIS_PORT` | `6379` | Porta do Redis |
+| `REDIS_PASSWORD` | vazio | Senha do Redis (se configurado) |
 | `JWT_SECRET` | (obrigatório) | Chave secreta para assinar tokens JWT |
 | `PORT` | `3000` | Porta do servidor Node |
 
