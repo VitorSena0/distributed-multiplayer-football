@@ -550,19 +550,6 @@ docker-compose restart
 
 ---
 
-## Documentação Adicional
-
-| Documento | Descrição |
-|-----------|-----------|
-| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Arquitetura técnica detalhada |
-| [docs/API.md](docs/API.md) | Documentação da API REST e WebSocket |
-| [docs/GUIA_TECNICO.md](docs/GUIA_TECNICO.md) | Guia técnico completo |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Guia de deploy |
-| [docs/DATABASE.md](docs/DATABASE.md) | Esquema do banco de dados |
-| [SECURITY_REPORT.md](SECURITY_REPORT.md) | Relatório de segurança |
-
----
-
 ## Licença
 
 Este projeto está licenciado sob a licença **ISC**.
@@ -571,7 +558,7 @@ Este projeto está licenciado sob a licença **ISC**.
 
 ## Contribuidores
 
-- **Vitor Leonardo** - [VitorSena0](https://github.com/VitorSena0)
+- **Vitor Leonardo** 
 - **Nicolas Matheus**
 - **João Pedro**
 
