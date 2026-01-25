@@ -1,658 +1,580 @@
-# Multiplayer Soccer
+# ⚽ Distributed Multiplayer Football
 
-Jogo de futebol **multiplayer 2D em tempo real** construído com **Node.js**, **Express**, **Socket.IO**, **PostgreSQL** e **TypeScript**.  
-O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo que todos vejam a mesma partida.
+Jogo de futebol **multiplayer 2D em tempo real** construído com arquitetura distribuída utilizando **Node.js**, **Express**, **Socket.IO**, **PostgreSQL**, **Redis** e **TypeScript**.
 
----
-
-## Índice
-
-- [Multiplayer Soccer](#multiplayer-soccer)
-  - [Índice](#índice)
-  - [Visão Geral](#visão-geral)
-  - [Sistema de Autenticação e Estatísticas](#sistema-de-autenticação-e-estatísticas)
-  - [Demonstração](#demonstração)
-  - [Arquitetura](#arquitetura)
-  - [Recursos do Jogo](#recursos-do-jogo)
-  - [Tecnologias Utilizadas](#tecnologias-utilizadas)
-  - [Pré-requisitos](#pré-requisitos)
-  - [Instalação e Execução Local](#instalação-e-execução-local)
-  - [Salas, Times e Balanceamento](#salas-times-e-balanceamento)
-  - [Regras de Partida e Temporizador](#regras-de-partida-e-temporizador)
-  - [Front-end (cliente)](#front-end-cliente)
-  - [Backend (servidor de jogo)](#backend-servidor-de-jogo)
-  - [Estrutura de Pastas](#estrutura-de-pastas)
-  - [Docker e Docker Compose](#docker-e-docker-compose)
-    - [1. Imagem do app Node](#1-imagem-do-app-node)
-    - [2. Docker Compose (app + Nginx)](#2-docker-compose-app--nginx)
-  - [Deploy em Produção (AWS EC2 + Nginx)](#deploy-em-produção-aws-ec2--nginx)
-  - [Variáveis de Ambiente](#variáveis-de-ambiente)
-  - [Roteiro de Desenvolvimento Futuro](#roteiro-de-desenvolvimento-futuro)
-  - [Licença](#licença)
+O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo sincronização em tempo real através de WebSockets.
 
 ---
 
-## Visão Geral
+## 🎓 Informações Acadêmicas
 
-O Multiplayer Soccer é um jogo de futebol top‑down onde vários jogadores controlam seus bonecos em **tempo real** pela web.  
-O servidor Node é responsável por:
+**Disciplina:** Sistemas Distribuídos  
+**Instituição:** Universidade Federal de Sergipe (UFS)  
+**Data:** 25/01/2026
 
-- Gerenciar **salas de jogo** independentes.
-- Balancear e manter **times vermelho e azul**.
-- Rodar o **game loop** (atualização de posições, colisões, placar).
-- Controlar o **temporizador da partida** e o fluxo de início/fim/reinício.
-- Enviar para cada cliente o **estado oficial** da partida (snapshot do jogo).
-- **Autenticar usuários** e salvar **estatísticas de partidas** no PostgreSQL.
-
-O cliente web (HTML/Canvas/JS) renderiza o campo, jogadores, bola, placar e cronômetro, além de enviar os comandos de input (setas/WASD, etc.) para o servidor via Socket.IO.
-<img width="1911" height="767" alt="Captura de tela de 2025-12-27 12-27-32" src="https://github.com/user-attachments/assets/9e0962bc-fe47-4865-a3ff-edb069c746cc" />
-
-
+**Equipe:**
+- Vitor Leonardo
+- Nicolas Matheus  
+- João Pedro
 
 ---
 
-## Sistema de Autenticação e Estatísticas
+## 📋 Índice
 
-### 🔐 Autenticação
+- [Visão Geral](#visão-geral)
+- [Arquitetura Distribuída](#arquitetura-distribuída)
+- [Comunicação em Rede](#comunicação-em-rede)
+- [Consistência de Dados](#consistência-de-dados)
+- [Gerenciamento de Sessões](#gerenciamento-de-sessões)
+- [Tolerância a Falhas](#tolerância-a-falhas)
+- [Escalabilidade](#escalabilidade)
+- [Persistência de Dados](#persistência-de-dados)
+- [Interface do Usuário](#interface-do-usuário)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Instalação e Execução](#instalação-e-execução)
+- [Docker e Containers](#docker-e-containers)
+- [Documentação Adicional](#documentação-adicional)
+- [Licença](#licença)
 
-O jogo possui três modos de acesso:
+---
 
-1. **Login**: Usuários registrados fazem login com usuário e senha
-2. **Registro**: Novos jogadores criam uma conta com usuário único e senha criptografada (bcrypt)
-3. **Convidado**: Jogar sem criar conta (estatísticas não são salvas)
+## 🎮 Visão Geral
 
-<img width="1507" height="800" alt="Captura de tela de 2025-12-27 12-28-05" src="https://github.com/user-attachments/assets/98adaf7f-81ca-417b-9534-c5cb53fa5d67" />
+O Distributed Multiplayer Football é um jogo de futebol top‑down onde múltiplos jogadores controlam seus avatares em **tempo real** pela web, demonstrando conceitos fundamentais de **sistemas distribuídos**.
 
+### Funcionalidades Principais
 
-### 📊 Estatísticas Salvas
+- ✅ **Multiplayer em tempo real** via WebSockets (Socket.IO)
+- ✅ **Servidor autoritativo** - O servidor mantém o estado oficial do jogo
+- ✅ **Gestão de múltiplas salas** independentes
+- ✅ **Balanceamento automático** de times (vermelho e azul)
+- ✅ **Sistema de autenticação** com JWT e bcrypt
+- ✅ **Ranking global** com cache Redis
+- ✅ **Persistência de estatísticas** em PostgreSQL
+- ✅ **Containerização** completa com Docker
 
-Para jogadores registrados, o sistema salva automaticamente após cada partida completa:
+<img width="1911" height="767" alt="Tela do jogo" src="https://github.com/user-attachments/assets/9e0962bc-fe47-4865-a3ff-edb069c746cc" />
 
-- **Gols marcados**: Total de gols feitos pelo jogador
-- **Gols sofridos**: Total de gols que o time do jogador levou
-- **Saldo de gols**: Diferença entre gols marcados e sofridos
-- **Vitórias**: Quantidade de partidas vencidas
-- **Derrotas**: Quantidade de partidas perdidas
-- **Empates**: Quantidade de partidas empatadas
-- **Partidas jogadas**: Total de partidas completas
+---
 
-### 🏆 Ranking Global
+## 🏗️ Arquitetura Distribuída
 
-Um ranking TOP 10 é exibido no lado esquerdo da tela do jogo, mostrando:
-- Posição no ranking (#)
-- Nome do jogador
-- Vitórias (VIT)
-- Derrotas (DER)
-- Empates (EMP)
-- Saldo de gols (SG)
-- Partidas jogadas (PJ)
+### Padrão Cliente-Servidor com Microsserviços
 
-O ranking é ordenado por: Vitórias > Saldo de Gols > Total de Gols Marcados
+O sistema implementa uma **arquitetura híbrida** combinando:
 
-#### Como o Ranking funciona (Redis + Postgres)
-
-- Redis mantém:
-	- ZSET `global_ranking` com um score composto (vitórias, saldo de gols, gols marcados)
-	- Hash por usuário `player:<userId>` com `username` e estatísticas
-- Na consulta:
-	- Busca primeiro no Redis; se o cache estiver incompleto ou com dados faltando, faz fallback ao Postgres e repovoa o Redis.
-	- Usuários com 0 partidas também aparecem (ordenados pelos critérios acima).
-
-Comandos úteis para inspecionar o Redis em dev/QA:
-
-```bash
-docker-compose exec redis redis-cli ping
-docker-compose exec redis redis-cli zrange global_ranking 0 -1 WITHSCORES
-docker-compose exec redis redis-cli hgetall player:<userId>
-docker-compose logs -f redis
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CLIENTE (Browser)                        │
+│  ┌─────────────────┐    ┌────────────────────────────────┐  │
+│  │   HTML5 Canvas  │    │     Socket.IO Client           │  │
+│  │   (Renderização)│    │  (Comunicação em tempo real)   │  │
+│  └─────────────────┘    └────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      NGINX (Proxy Reverso)                   │
+│                        Container :80                         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  NODE.JS APP (Game Server)                   │
+│                      Container :3000                         │
+│  ┌─────────────────┐    ┌────────────────────────────────┐  │
+│  │   REST API      │    │       Socket.IO Server         │  │
+│  │ (Autenticação)  │    │   (Game Loop 60 FPS)           │  │
+│  └─────────────────┘    └────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┴───────────────┐
+              ▼                               ▼
+┌──────────────────────┐       ┌──────────────────────┐
+│     POSTGRESQL       │       │        REDIS         │
+│   Container :5432    │       │   Container :6379    │
+│  (Dados Persistentes)│       │   (Cache/Ranking)    │
+└──────────────────────┘       └──────────────────────┘
 ```
 
-Mais detalhes em [docs/RELATORIO_RANKING_REDIS.md](docs/RELATORIO_RANKING_REDIS.md) e visão geral em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+### Cluster de Contêineres (Docker Compose)
 
-### 🎮 Identificação de Jogadores
+O sistema roda em um cluster de **4 contêineres** orquestrados via Docker Compose:
 
-- **Usuários registrados**: O nome de usuário é exibido acima do jogador no jogo
-- **Convidados**: Aparecem como "Convidado 1", "Convidado 2", etc. (até "Convidado 6" se todos forem convidados)
-- **Seu jogador**: Destacado com cor amarela pulsante para fácil identificação
-
-### 🔒 Segurança
-
-- **Proteção de sessão**: Um usuário só pode estar logado em uma sessão por vez. Se tentar fazer login em outro dispositivo/aba, a sessão anterior é desconectada automaticamente
-- **Mensagem de segurança**: Interface de registro informa que os dados são protegidos com bcrypt (hash de senha) e JWT (autenticação segura)
-- **Armazenamento temporário**: Dados de sessão são armazenados em `sessionStorage` (não persistem após fechar o navegador)
-
-<img width="1513" height="919" alt="Captura de tela de 2025-12-27 12-28-23" src="https://github.com/user-attachments/assets/b9dea00f-daf0-4038-a2b8-4ddbabedbd8a" />
-
-
-### 🛠️ Tecnologias de Autenticação
-
-- **PostgreSQL 17**: Banco de dados relacional
-- **bcryptjs**: Criptografia de senhas
-- **jsonwebtoken (JWT)**: Tokens de autenticação
-- **RESTful API**: Endpoints para login, registro, estatísticas e ranking
+| Serviço | Imagem | Porta | Função |
+|---------|--------|-------|--------|
+| `postgres` | postgres:17 | 5432 | Banco de dados relacional |
+| `redis` | redis:7 | 6379 | Cache e ranking em tempo real |
+| `app` | multiplayer-soccer-app | 3000 | Servidor Node.js (game server) |
+| `nginx` | multiplayer-soccer-nginx | 80 | Proxy reverso e load balancer |
 
 ---
 
-## Arquitetura
+## 📡 Comunicação em Rede
 
-- **Node.js + Express**: servidor HTTP responsável por expor uma API mínima e servir os arquivos estáticos do cliente (pasta `public/`).
-- **Socket.IO**: canal de comunicação em tempo real entre cliente e servidor, usado para:
-	- Enviar inputs do jogador para o servidor.
-	- Receber o estado atualizado do jogo (posição de jogadores, bola, placar, timer).
-- **Game Loop no servidor**:
-	- Roda a **60 FPS** (`setInterval` a cada `1000 / 60` ms).
-	- Atualiza física básica: velocidade, posições, colisões, limites de campo, gol, cantos etc.
-- **Timer de partida**:
-	- Atualizado a cada 1 segundo.
-	- Emite eventos de início, atualização de cronômetro e fim de partida.
+### Protocolos Utilizados
 
----
+| Protocolo | Tecnologia | Uso |
+|-----------|------------|-----|
+| **HTTP/HTTPS** | Express.js | API REST (autenticação, estatísticas) |
+| **WebSocket** | Socket.IO | Gameplay em tempo real |
+| **TCP** | PostgreSQL/Redis | Conexões persistentes com bancos |
 
-## Recursos do Jogo
+### Troca de Mensagens em Tempo Real
 
-- Multiplayer em tempo real via WebSockets (Socket.IO).
-- Gestão de múltiplas salas independentes.
-- Times **vermelho** e **azul**, com balanceamento automático.
-- Placar e cronômetro visíveis para todos os clientes.
-- Reinício de partida quando o tempo zera e todos clicam em “Jogar Novamente”.
-- Colisão básica jogador x bola, limites de campo e regras de cantos.
-- Detecção de sala cheia com evento específico para o cliente.
+#### Eventos Cliente → Servidor
 
----
+| Evento | Descrição | Payload |
+|--------|-----------|---------|
+| `playerInput` | Comandos de movimento | `{ left, right, up, down }` |
+| `requestRestart` | Solicitar reinício | - |
+| `pong` | Resposta ao ping | `timestamp` |
 
-## Tecnologias Utilizadas
+#### Eventos Servidor → Cliente
 
-- **Linguagem**: TypeScript (compilado para JavaScript)
-- **Servidor**:
-	- Node.js 18+
-	- Express
-	- Socket.IO
-	- TypeScript
-	- PostgreSQL 17
-	- Redis 7 (cache/ranking)
-	- bcryptjs (criptografia de senhas)
-	- jsonwebtoken (JWT para autenticação)
-- **Cliente**:
-	- HTML5
-	- CSS3
-	- TypeScript (compilado para JavaScript)
-	- Canvas / DOM
-- **Banco de Dados**:
-	- PostgreSQL 17
-	- Redis 7
-	- pg (driver Node.js)
-	- ioredis (cliente Redis)
-- **Infra / Deploy**:
-	- Docker / Docker Compose
-	- Nginx (como proxy reverso)
-	- AWS EC2 (exemplo de ambiente de produção)
-	- ngrok (para tunel HTTP em desenvolvimento remoto)
+| Evento | Descrição | Payload |
+|--------|-----------|---------|
+| `init` | Estado inicial | `{ team, gameState, canMove, roomId }` |
+| `update` | Snapshot do jogo | `{ players, ball, score, matchTime }` |
+| `goalScored` | Notificação de gol | `{ team, goalScoredBy }` |
+| `matchEnd` | Fim da partida | `{ winner, gameState }` |
+| `playerConnected` | Novo jogador | `{ playerId, team }` |
+| `playerDisconnected` | Jogador saiu | `{ playerId }` |
 
----
+### Game Loop (60 FPS)
 
-## Pré-requisitos
-
-Para rodar **localmente**:
-
-- **Node.js 18+** e **npm**
-- **PostgreSQL 17** (ou usar Docker)
-- Porta **TCP 3000** liberada (ou configure outra via variável `PORT`)
-- Porta **TCP 5432** liberada para PostgreSQL (se rodando localmente)
-
-Para usar **Docker**:
-
-- Docker instalado e em execução
-- (Opcional) Docker Compose
-
-Para seguir o guia de deploy na **AWS EC2**:
-
-- Conta AWS
-- Instância EC2 (Ubuntu ou Amazon Linux recomendados)
-- Acesso SSH
-
----
-
-## Instalação e Execução Local
-
-### 1. Instalar Dependências
-
-Na raiz do projeto:
-
-```bash
-npm install
+```typescript
+// Servidor processa a cada ~16.67ms
+setInterval(() => {
+    for (const room of rooms.values()) {
+        gameLoop(room, io);  // Atualiza física, colisões, placar
+    }
+}, 1000 / 60);
 ```
 
-### 2. Configurar Banco de Dados
+---
 
-#### Opção A: Usando Docker (Recomendado)
+## 🔄 Consistência de Dados
 
-Execute o script de inicialização:
+### Modelo de Consistência: Servidor Autoritativo
 
-```bash
-./scripts/init-db.sh
+O servidor mantém o **estado oficial** do jogo, garantindo:
+
+- **Sincronização de posições**: Jogadores, bola, placar
+- **Validação de ações**: Apenas inputs válidos são processados
+- **Broadcast atômico**: Todos recebem o mesmo snapshot
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                 ESTADO DO SERVIDOR (Room)                │
+├──────────────────────────────────────────────────────────┤
+│ players: { socketId: { x, y, team, input, goals } }      │
+│ ball: { x, y, speedX, speedY, radius }                   │
+│ score: { red: number, blue: number }                     │
+│ teams: { red: string[], blue: string[] }                 │
+│ matchTime: number                                        │
+│ isPlaying: boolean                                       │
+└──────────────────────────────────────────────────────────┘
+                         │
+                         ▼ broadcast
+     ┌───────────────────┼───────────────────┐
+     ▼                   ▼                   ▼
+┌─────────┐        ┌─────────┐        ┌─────────┐
+│ Client1 │        │ Client2 │        │ Client3 │
+└─────────┘        └─────────┘        └─────────┘
 ```
 
-Este script irá:
-- Iniciar um container PostgreSQL 17
-- Criar o banco de dados `football_db`
-- Executar o schema SQL para criar as tabelas
+### Consistência Redis/PostgreSQL
 
-#### Opção B: PostgreSQL Local
+- **Redis**: Cache de ranking com ZSET (consistência eventual)
+- **PostgreSQL**: Dados persistentes com transações ACID
+- **Fallback automático**: Se Redis falhar, consulta PostgreSQL
 
-Se você tem PostgreSQL instalado localmente:
+---
 
-```bash
-# Criar banco de dados
-createdb football_db
+## 🔐 Gerenciamento de Sessões
 
-# Executar schema
-psql -d football_db -f database/schema.sql
+### Autenticação de Jogadores
+
+| Método | Descrição |
+|--------|-----------|
+| **Login** | Usuário/senha → JWT Token |
+| **Registro** | Criar conta com senha bcrypt |
+| **Convidado** | Jogar sem conta (sem estatísticas) |
+
+### Criação e Gerenciamento de Salas (Lobby)
+
+```typescript
+// Alocação automática de sala
+function allocateRoom(requestedRoomId?: string): RoomAllocation {
+    // 1. Tenta usar sala específica (se solicitado)
+    // 2. Busca sala com vagas
+    // 3. Cria nova sala se necessário
+}
 ```
 
-### 3. Configurar Variáveis de Ambiente
+- **Máximo 6 jogadores** por sala
+- **Balanceamento automático** entre times
+- **Salas nomeadas** via URL: `?room=minha-sala`
+- **Cleanup automático** de salas vazias
 
-Copie o arquivo de exemplo e ajuste as configurações:
+### Segurança de Sessão
+
+- ✅ **Sessão única**: Um usuário por vez por conta
+- ✅ **JWT com expiração**: 30 dias
+- ✅ **Senhas hasheadas**: bcrypt com 10 salt rounds
+- ✅ **Proteção CORS**: Validação de origem
+
+<img width="1507" height="800" alt="Tela de autenticação" src="https://github.com/user-attachments/assets/98adaf7f-81ca-417b-9534-c5cb53fa5d67" />
+
+---
+
+## 🛡️ Tolerância a Falhas
+
+### Tratamento de Desconexões
+
+```typescript
+socket.on('disconnect', () => {
+    // 1. Remove jogador do time
+    room.teams[player.team] = room.teams[player.team].filter(id => id !== socket.id);
+    
+    // 2. Remove do mapa de jogadores
+    delete room.players[socket.id];
+    
+    // 3. Notifica demais jogadores
+    io.to(room.id).emit('playerDisconnected', { playerId: socket.id });
+    
+    // 4. Reavalia condições de jogo
+    checkRestartConditions(room, io);
+    
+    // 5. Limpa sala se vazia
+    cleanupRoomIfEmpty(room);
+});
+```
+
+### Mecanismos Implementados
+
+| Mecanismo | Descrição |
+|-----------|-----------|
+| **Detecção de desconexão** | Socket.IO heartbeat automático |
+| **Rebalanceamento** | Times são rebalanceados automaticamente |
+| **Continuidade** | Partida continua se houver jogadores suficientes |
+| **Recuperação de estado** | Novos jogadores recebem estado atual completo |
+| **Healthchecks** | Containers reiniciam automaticamente |
+
+### Docker Restart Policy
+
+```yaml
+services:
+  app:
+    restart: unless-stopped  # Reinicia automaticamente em caso de falha
+```
+
+---
+
+## 📈 Escalabilidade
+
+### Suporte a Múltiplos Jogadores
+
+- **6 jogadores por sala** (configurável)
+- **Salas ilimitadas** criadas sob demanda
+- **Isolamento**: Cada sala tem seu próprio estado
+
+### Arquitetura Atual (Single Server)
+
+```
+┌──────────────────┐
+│   Nginx          │ :80
+└────────┬─────────┘
+         │
+┌────────▼─────────┐
+│   Node.js        │ :3000
+│   ├── REST API   │
+│   └── Socket.IO  │
+└────────┬─────────┘
+         │
+    ┌────┴────┐
+    │         │
+┌───▼──┐  ┌──▼────┐
+│ PG   │  │ Redis │
+└──────┘  └───────┘
+```
+
+### Escalabilidade Horizontal (Futuro)
+
+Para múltiplas instâncias do servidor:
+
+```
+                ┌──────────┐
+                │  Nginx   │ (Load Balancer)
+                └────┬─────┘
+                     │
+         ┌───────────┼───────────┐
+         │           │           │
+    ┌────▼───┐  ┌───▼────┐  ┌───▼────┐
+    │ Node 1 │  │ Node 2 │  │ Node 3 │
+    └────┬───┘  └───┬────┘  └───┬────┘
+         │          │           │
+         └──────────┼───────────┘
+                    │
+            ┌───────┴────────┐
+            │                │
+        ┌───▼──┐      ┌─────▼─────┐
+        │  PG  │      │   Redis   │
+        └──────┘      │ (Adapter) │
+                      └───────────┘
+```
+
+1. **Redis Adapter** - Sincronizar eventos Socket.IO entre servidores
+2. **Load Balancer** - Sticky sessions para WebSocket
+3. **Separate Workers** - Game loops em processos separados
+
+---
+
+## 💾 Persistência de Dados
+
+### Banco de Dados Distribuído
+
+#### PostgreSQL (Dados Persistentes)
+
+```sql
+-- Tabela de usuários
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de estatísticas
+CREATE TABLE player_stats (
+    user_id INTEGER UNIQUE REFERENCES users(id),
+    total_goals_scored INTEGER DEFAULT 0,
+    total_goals_conceded INTEGER DEFAULT 0,
+    wins INTEGER DEFAULT 0,
+    losses INTEGER DEFAULT 0,
+    draws INTEGER DEFAULT 0,
+    matches_played INTEGER DEFAULT 0
+);
+
+-- Índices para performance
+CREATE INDEX idx_ranking ON player_stats(wins DESC, goals_difference DESC);
+```
+
+#### Redis (Cache e Ranking)
+
+```redis
+# ZSET para ranking global
+ZADD global_ranking <score> <userId>
+
+# Hash para dados do jogador
+HSET player:<userId> username "jogador1" wins 10 losses 5
+
+# Consulta TOP 10
+ZREVRANGE global_ranking 0 9 WITHSCORES
+```
+
+### Dados Armazenados
+
+| Dado | Armazenamento | Descrição |
+|------|---------------|-----------|
+| Credenciais | PostgreSQL | username, password (hash) |
+| Estatísticas | PostgreSQL + Redis | gols, vitórias, derrotas |
+| Ranking | Redis (cache) + PostgreSQL (persistente) | TOP 10 global |
+| Estado do jogo | Memória (RAM) | Posições, placar, timer |
+
+---
+
+## 🎨 Interface do Usuário
+
+### Renderização em Tempo Real
+
+- **HTML5 Canvas** para renderização do campo
+- **60 FPS** de atualização visual
+- **Feedback visual** de estado do jogo
+
+### Elementos da Interface
+
+| Elemento | Descrição |
+|----------|-----------|
+| Campo | Área de jogo com gols e linhas |
+| Jogadores | Círculos coloridos (vermelho/azul) |
+| Bola | Elemento central do gameplay |
+| Placar | Pontuação de ambos os times |
+| Cronômetro | Tempo restante da partida |
+| Ranking | TOP 10 jogadores no lado esquerdo |
+| HUD | Ping, sala atual, controles |
+
+<img width="1513" height="919" alt="Interface do jogo" src="https://github.com/user-attachments/assets/b9dea00f-daf0-4038-a2b8-4ddbabedbd8a" />
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### Backend
+| Tecnologia | Versão | Uso |
+|------------|--------|-----|
+| Node.js | 20+ | Runtime JavaScript |
+| Express | 4.x | Framework web |
+| Socket.IO | 4.x | WebSockets |
+| TypeScript | 5.x | Tipagem estática |
+| PostgreSQL | 17 | Banco relacional |
+| Redis | 7 | Cache/ranking |
+| bcryptjs | 2.x | Hash de senhas |
+| jsonwebtoken | 9.x | Autenticação JWT |
+
+### Frontend
+| Tecnologia | Uso |
+|------------|-----|
+| HTML5 Canvas | Renderização do jogo |
+| TypeScript | Lógica do cliente |
+| Socket.IO Client | Comunicação em tempo real |
+
+### Infraestrutura
+| Tecnologia | Uso |
+|------------|-----|
+| Docker | Containerização |
+| Docker Compose | Orquestração |
+| Nginx | Proxy reverso |
+
+---
+
+## 🚀 Instalação e Execução
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalados
+- Git
+
+### Execução com Docker (Recomendado)
 
 ```bash
+# 1. Clonar o repositório
+git clone https://github.com/VitorSena0/distributed-multiplayer-football.git
+cd distributed-multiplayer-football
+
+# 2. Configurar variáveis de ambiente
 cp .env.example .env
+# Edite o .env com suas configurações
+
+# 3. Build das imagens
+docker build -t multiplayer-soccer-app:latest .
+docker build -t multiplayer-soccer-nginx:latest ./nginx
+
+# 4. Iniciar os containers
+docker-compose up -d
+
+# 5. Acessar o jogo
+# Abra http://localhost no navegador
 ```
 
-Edite o arquivo `.env` conforme necessário. Para desenvolvimento local com Docker, os valores padrão já funcionam.
-
-### 4. Compilar e Executar
+### Execução Local (Desenvolvimento)
 
 ```bash
-# Compilar o TypeScript
+# 1. Instalar dependências
+npm install
+
+# 2. Iniciar banco de dados
+./scripts/init-db.sh
+
+# 3. Compilar TypeScript
 npm run build
 
-# Executar o servidor
+# 4. Executar servidor
 npm run start
-```
 
-Ou para desenvolvimento:
-
-```bash
-# Executar em modo desenvolvimento (com ts-node)
+# Ou em modo desenvolvimento
 npm run dev
 ```
 
-O servidor, por padrão, escuta em `PORT` (se definida) ou `3000`.
-
-### 5. Acessar o Jogo
-
-Abra no navegador:
-
-- `http://localhost:3000` - Redireciona para a tela de login
-- `http://localhost:3000/auth.html` - Tela de login/registro
-- `http://localhost:3000/index.html` - Jogo (requer autenticação)
-
-### API Endpoints
-
-- `POST /api/auth/register` - Registrar novo usuário
-- `POST /api/auth/login` - Fazer login
-- `POST /api/auth/verify` - Verificar token JWT
-- `GET /api/auth/stats/:userId` - Buscar estatísticas de um usuário
-- `GET /api/auth/ranking?limit=10` - Buscar ranking global
-
 ---
 
-## Salas, Times e Balanceamento
+## 🐳 Docker e Containers
 
-A lógica de salas está em `game/roomManager.ts`.
+### docker-compose.yml
 
-- Cada sala comporta até **6 jogadores simultâneos** (`MAX_PLAYERS_PER_ROOM`).
-- Ao acessar o jogo sem parâmetros (`/`), o servidor:
-	- Procura uma sala disponível com vagas.
-	- Caso não encontre, **cria uma nova** (`room-1`, `room-2`, ...).
-- Para entrar em uma sala específica, use o parâmetro `room` na URL, por exemplo:
-	- `https://seu-dominio.com/?room=amigos`
-- O identificador de sala é **sanitizado**:
-	- Apenas letras, números, `-` e `_` são aceitos.
-	- Entradas inválidas são descartadas.
+```yaml
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: football_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+    restart: unless-stopped
 
-**Sala cheia**:
+  redis:
+    image: redis:7
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    restart: unless-stopped
 
-- Se uma sala estiver com todos os slots ocupados, o servidor:
-	- Emite o evento `roomFull` para o cliente.
-	- Encerra a conexão para evitar sobrecarga.
+  app:
+    image: multiplayer-soccer-app:latest
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
 
-- **Balanceamento de times**:
-	- O servidor tenta manter a diferença de jogadores entre os times `red` e `blue` em **no máximo 1**.
-	- Quando necessário, jogadores podem ser realocados de um time para outro (lógica em `game/match.ts`).
-
----
-
-## Regras de Partida e Temporizador
-
-A lógica de partida está em `game/match.ts`:
-
-- **Início/Reinício de partida**:
-	- A partida é iniciada quando há ao menos um jogador em cada time.
-	- Ao reiniciar, o servidor:
-		- Zera o cronômetro.
-		- Reseta posições de todos os jogadores.
-		- Chama `resetBall` para reposicionar a bola (ver `game/ball.ts`).
-- **Temporizador**:
-	- Atualizado pela função `updateTimer(room, io)` a cada 1 segundo.
-	- Emite o evento `timerUpdate` com `matchTime` para todos da sala.
-	- Ao chegar em zero:
-		- Emite `matchEnd`.
-		- A partida entra em estado de espera.
-
-**Reinício após fim da partida**:
-
-- Quando o cronômetro chega a zero:
-	- Todos os jogadores precisam clicar em **“Jogar Novamente”**.
-	- O servidor registra quem está “pronto”.
-	- Assim que **todos** estiverem prontos **e** houver pelo menos um jogador em cada time:
-		- A partida é reiniciada (novo kick-off, bola e posições resetadas).
-
----
-
-## Front-end (cliente)
-
-Os arquivos do cliente estão em `public/`:
-
-- `public/index.html` — página principal do jogo.
-- `public/style.css` — estilos do campo, HUD, botões, etc.
-- `public/game.ts` — lógica do cliente em TypeScript (compilada para `public/dist/game.js`):
-	- Conecta ao Socket.IO do servidor.
-	- Envia inputs (teclas pressionadas) para o servidor.
-	- Renderiza o campo, jogadores, bola, placar e cronômetro.
-	- Trata eventos como:
-		- Snapshot de estado do jogo.
-		- Atualizações de timer.
-		- Mensagens de sala cheia, início/fim de partida, etc.
-	- Utiliza tipagem forte para garantir segurança de tipos nas interfaces de comunicação.
-
----
-
-## Backend (servidor de jogo)
-
-Ponto de entrada: `game-server.ts` (compilado para `dist/game-server.js`).
-
-Responsabilidades principais:
-
-- Criar o servidor HTTP (`http.createServer(app)`).
-- Plugar o Socket.IO (`const io = new SocketIOServer(server, { ... })`).
-- Servir arquivos estáticos da pasta `public/` via Express.
-- Registrar os handlers de Socket.IO (`game/socketHandlers.ts`).
-- Executar o game loop e o timer:
-
-	- `runGameLoops()`:
-		- Percorre todas as salas (`rooms`) e chama `gameLoop(room, io)`.
-		- Rodando a **60 FPS** (`setInterval(runGameLoops, 1000 / 60)`).
-	- `handleTimers()`:
-		- Percorre todas as salas e chama `updateTimer(room, io)`.
-		- Rodando a cada **1 segundo** (`setInterval(handleTimers, 1000)`).
-
-Outros módulos importantes:
-
-- `game/types.ts` — definições de tipos TypeScript para todas as estruturas do jogo (Room, Player, Ball, etc.).
-- `game/constants.ts` — constantes de jogo (tamanhos, duração, limites).
-- `game/roomManager.ts` — criação, alocação e limpeza de salas com tipos bem definidos.
-- `game/match.ts` — temporizador, início/fim de partida, balanceamento de times.
-- `game/ball.ts` — estado e reposicionamento da bola, cantos.
-- `game/gameLoop.ts` — lógica central de atualização a cada tick.
-- `game/socketHandlers.ts` — mapeamento de eventos Socket.IO (conexão, desconexão, inputs, "jogar novamente" etc.) com tipagem forte.
-- `game/gameLoop.js` — lógica central de atualização a cada tick.
-- `game/socketHandlers.js` — mapeamento de eventos Socket.IO (conexão, desconexão, inputs, “jogar novamente” etc.).
-
----
-
-## Estrutura de Pastas
-
-Estrutura simplificada do repositório:
-
-```text
-Multiplayer-Soccer/
-├─ game-server.ts         # Ponto de entrada do servidor Node/Express/Socket.IO (TypeScript)
-├─ package.json           # Metadados e scripts npm
-├─ tsconfig.json          # Configuração TypeScript para o servidor
-├─ tsconfig.client.json   # Configuração TypeScript para o cliente
-├─ dockerfile             # Dockerfile do app Node
-├─ docker-compose.yml     # Compose para subir app + nginx + postgres
-├─ .env.example           # Exemplo de variáveis de ambiente
-├─ README.md              # Este arquivo
-│
-├─ game/                  # Lado servidor: lógica de jogo (TypeScript)
-│  ├─ types.ts
-│  ├─ constants.ts
-│  ├─ roomManager.ts
-│  ├─ match.ts
-│  ├─ ball.ts
-│  ├─ gameLoop.ts
-│  └─ socketHandlers.ts
-│
-├─ database/              # Esquema e configuração do banco de dados
-│  ├─ schema.sql         # Definição de tabelas PostgreSQL
-│  └─ db.ts              # Configuração da conexão com o banco
-│
-├─ services/              # Serviços da aplicação
-│  └─ authService.ts     # Lógica de autenticação e estatísticas
-│
-├─ routes/                # Rotas da API REST
-│  └─ authRoutes.ts      # Endpoints de autenticação
-│
-├─ scripts/               # Scripts auxiliares
-│  └─ init-db.sh         # Script para inicializar banco de dados
-│
-├─ dist/                  # Código JavaScript compilado do servidor
-│  ├─ game-server.js
-│  ├─ game/
-│  ├─ database/
-│  ├─ services/
-│  └─ routes/
-│
-├─ public/                # Lado cliente (front-end)
-│  ├─ index.html         # Página principal do jogo
-│  ├─ auth.html          # Página de login/registro
-│  ├─ style.css          # Estilos do jogo
-│  ├─ auth-style.css     # Estilos da autenticação
-│  ├─ auth.js            # JavaScript da autenticação
-│  ├─ game.ts            # Código TypeScript do cliente
-│  └─ dist/              # Código JavaScript compilado do cliente
-│     └─ game.js
-│
-├─ nginx/                 # Configuração Nginx para proxy reverso
-│  ├─ default.conf
-│  └─ Dockerfile
+  nginx:
+    image: multiplayer-soccer-nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    restart: unless-stopped
 ```
 
----
-
-## Docker e Docker Compose
-
-O projeto já vem preparado para rodar em containers.
-
-### 1. Imagem do app Node
-
-O arquivo `dockerfile` na raiz contém algo como:
-
-```Dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY tsconfig*.json ./
-COPY game-server.ts ./
-COPY game ./game
-COPY public ./public
-RUN npm run build
-RUN npm prune --production
-ENV PORT=3000
-EXPOSE 3000
-CMD ["node", "dist/game-server.js"]
-```
-
-**Build da imagem:**
+### Comandos Úteis
 
 ```bash
-docker build -t multiplayer-soccer-app -f dockerfile .
-```
+# Ver logs
+docker-compose logs -f app
 
-**Rodar o container (sem Nginx):**
+# Acessar Redis CLI
+docker-compose exec redis redis-cli
 
-```bash
-docker run --rm -p 3000:3000 --name multiplayer-soccer-app multiplayer-soccer-app
-```
+# Acessar PostgreSQL
+docker-compose exec postgres psql -U postgres -d football_db
 
-Acesse em:
-
-- `http://localhost:3000`
-
-### 2. Docker Compose (Postgres + Redis + App + Nginx)
-
-O arquivo `docker-compose.yml` define quatro serviços:
-
-- `postgres`: banco PostgreSQL 17 (inicializa com `database/schema.sql`)
-- `redis`: Redis 7 para ranking/cache
-- `app`: imagem `multiplayer-soccer-app:latest`
-- `nginx`: imagem `multiplayer-soccer-nginx:latest`, expondo porta **80** e fazendo proxy para `app:3000`.
-
-Fluxo típico:
-
-1. Build da imagem do app:
-
-	 ```bash
-	 docker build -t multiplayer-soccer-app -f dockerfile .
-	 ```
-
-2. Build da imagem do Nginx (dentro da pasta `nginx/`):
-
-	 ```bash
-	 cd nginx
-	 docker build -t multiplayer-soccer-nginx .
-	 cd ..
-	 ```
-
-3. Subir tudo com Docker Compose (na raiz do projeto):
-
-	 ```bash
-	 docker compose up
-	 # ou
-	 docker-compose up
-	 ```
-
- 4. Acessar no navegador:
-
-	 - `http://localhost` (porta 80 → Nginx → app:3000)
-
----
-
-## Deploy em Produção (AWS EC2 + Nginx)
-
-1. **Sem Docker**:
-	 - Node.js + npm instalados direto na EC2.
-	 - PM2 para gerenciar o processo (`pm2 start game-server.js`).
-	 - Nginx como proxy reverso, escutando na porta 80 e encaminhando para `localhost:3000`.
-
-2. **Com Docker**:
-	 - Container com o app Node.
-	 - (Opcional) Container com Nginx na frente.
-	 - Opções para:
-		 - Enviar somente a imagem `.tar` (via `docker save` / `docker load`).
-		 - Ou enviar apenas arquivos necessários (`Dockerfile`, `docker-compose.yml` etc.).
-
-É recomendável **ler esse guia** quando for fazer deploy real, pois ele também explica:
-
-- Configuração de **Security Groups** (liberando portas 80/3000).
-- Boas práticas de não enviar o projeto inteiro para a EC2 sem necessidade.
-- Rotinas de start/stop, logs e troubleshooting.
-
----
-
-## Variáveis de Ambiente
-
-### Arquivo `.env`
-
-Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
-
-```bash
-# Configuração do Banco de Dados PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=football_db
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-# Configuração do Redis (cache/ranking)
-REDIS_HOST=redis
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
-# Configuração JWT (MUDE ESTE SECRET EM PRODUÇÃO! Consulte a seção de Segurança abaixo para gerar um secret forte com o comando crypto.)
-JWT_SECRET=your-secure-jwt-secret-here # node -e "console.log(require('crypto').randomBytes(64).toString('hex'))" Gera um secrete forte
-
-# Porta do servidor
-PORT=3000
-```
-
-### Instalação do `dotenv`
-
-```bash
-npm install dotenv
-```
-
-Carregue as variáveis no início do seu arquivo principal:
-
-```typescript
-import 'dotenv/config';
-// resto do código...
-```
-
-### Variáveis Principais
-
-| Variável | Padrão | Descrição |
-|----------|--------|-----------|
-| `DB_HOST` | `localhost` | Host do PostgreSQL |
-| `DB_PORT` | `5432` | Porta do PostgreSQL |
-| `DB_NAME` | `football_db` | Nome do banco de dados |
-| `DB_USER` | `postgres` | Usuário do PostgreSQL |
-| `DB_PASSWORD` | `postgres` | Senha do PostgreSQL |
-| `REDIS_HOST` | `redis` | Host do Redis (em Docker Compose, o nome do serviço) |
-| `REDIS_PORT` | `6379` | Porta do Redis |
-| `REDIS_PASSWORD` | vazio | Senha do Redis (se configurado) |
-| `JWT_SECRET` | (obrigatório) | Chave secreta para assinar tokens JWT |
-| `PORT` | `3000` | Porta do servidor Node |
-
-### ⚠️ Segurança
-
-- **NUNCA** versione o arquivo `.env` no Git
-- Adicione `.env` ao `.gitignore`
-- Em produção, use senhas fortes e chaves JWT geradas aleatoriamente
-- Gerar JWT_SECRET seguro: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
-
-### Exemplos de Uso
-
-```bash
-# Rodar localmente (usa valores do .env)
-npm start
-
-# Rodar em outra porta
-PORT=4000 npm start
-
-# Com Docker Compose (lê variáveis do .env)
-docker-compose up
+# Reiniciar serviços
+docker-compose restart
 ```
 
 ---
 
-## 🔐 Relatório de Segurança
+## 📚 Documentação Adicional
 
-Este projeto implementa boas práticas de segurança. Consulte o arquivo [SECURITY_REPORT.md](SECURITY_REPORT.md) para:
-
-- **Análise de SQL Injection**: Status ✅ SEGURO (prepared statements)
-- **Autenticação JWT**: Implementação segura com expiração
-- **Criptografia de Senha**: bcryptjs com 10 salt rounds
-- **Variáveis de Ambiente**: Separação de credenciais sensíveis
-- **Checklist de Produção**: Guia completo para deploy em AWS EC2
-- **Geração de Chaves Seguras**: Como criar JWT_SECRET e senhas fortes
-- **Configuração Docker**: Segurança em desenvolvimento vs produção
+| Documento | Descrição |
+|-----------|-----------|
+| [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Arquitetura técnica detalhada |
+| [docs/API.md](docs/API.md) | Documentação da API REST e WebSocket |
+| [docs/GUIA_TECNICO.md](docs/GUIA_TECNICO.md) | Guia técnico completo |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Guia de deploy |
+| [docs/DATABASE.md](docs/DATABASE.md) | Esquema do banco de dados |
+| [SECURITY_REPORT.md](SECURITY_REPORT.md) | Relatório de segurança |
 
 ---
 
-## Licença
+## 📄 Licença
 
-Este projeto está licenciado sob a licença **ISC** (ver campo `license` em `package.json`).  
-Adapte o texto da licença conforme necessário para o uso que você pretende.
+Este projeto está licenciado sob a licença **ISC**.
+
+---
+
+## 👥 Contribuidores
+
+- **Vitor Leonardo** - [VitorSena0](https://github.com/VitorSena0)
+- **Nicolas Matheus**
+- **João Pedro**
+
+---
+
+*Desenvolvido como projeto acadêmico para a disciplina de Sistemas Distribuídos - Universidade Federal de Sergipe (UFS) - 2026*
