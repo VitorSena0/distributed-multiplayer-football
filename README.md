@@ -1,5 +1,7 @@
 # Distributed Multiplayer Football
 
+## Documentação Técnica
+
 Jogo de futebol **multiplayer 2D em tempo real** construído com arquitetura distribuída utilizando **Node.js**, **Express**, **Socket.IO**, **PostgreSQL**, **Redis** e **TypeScript**.
 
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo sincronização em tempo real através de WebSockets.
