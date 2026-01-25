@@ -4,7 +4,6 @@ import { buildGameState } from './roomManager';
 import { resetBall } from './ball';
 import { Room, Player } from './types';
 import { AuthService } from '../services/authService';
-import { updateGlobalRanking } from '../services/rankingService';
 
 function balanceTeams(room: Room, io: SocketIOServer): void {
     const redCount = room.teams.red.length;
@@ -172,7 +171,6 @@ async function saveMatchStats(room: Room, winner: 'red' | 'blue' | 'draw'): Prom
             
             try {
                 await AuthService.updateStats(player.userId, goalsScored, goalsConceded, result);
-                await updateGlobalRanking(player.userId, goalsScored);
                 console.log(`Estatísticas atualizadas para usuário ${player.userId}: ${goalsScored} gols`);
             } catch (error) {
                 console.error(`Erro ao salvar estatísticas do usuário ${player.userId}:`, error);
@@ -194,7 +192,6 @@ async function saveMatchStats(room: Room, winner: 'red' | 'blue' | 'draw'): Prom
             
             try {
                 await AuthService.updateStats(player.userId, goalsScored, goalsConceded, result);
-                await updateGlobalRanking(player.userId, goalsScored);
                 console.log(`Estatísticas atualizadas para usuário ${player.userId}: ${goalsScored} gols`);
             } catch (error) {
                 console.error(`Erro ao salvar estatísticas do usuário ${player.userId}:`, error);
