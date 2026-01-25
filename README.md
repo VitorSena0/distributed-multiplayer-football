@@ -28,6 +28,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
   - [Deploy em Produção (AWS EC2 + Nginx)](#deploy-em-produção-aws-ec2--nginx)
   - [Variáveis de Ambiente](#variáveis-de-ambiente)
   - [Roteiro de Desenvolvimento Futuro](#roteiro-de-desenvolvimento-futuro)
+  - [Documentação e Apresentação](#documentação-e-apresentação)
   - [Licença](#licença)
 
 ---
@@ -649,6 +650,13 @@ Este projeto implementa boas práticas de segurança. Consulte o arquivo [SECURI
 - **Checklist de Produção**: Guia completo para deploy em AWS EC2
 - **Geração de Chaves Seguras**: Como criar JWT_SECRET e senhas fortes
 - **Configuração Docker**: Segurança em desenvolvimento vs produção
+
+---
+
+## Documentação e Apresentação
+
+- Documento técnico detalhado: [docs/DOCUMENTO_TECNICO.md](docs/DOCUMENTO_TECNICO.md)
+- Roteiro de slides baseado no barema: [docs/SLIDES_APRESENTACAO.md](docs/SLIDES_APRESENTACAO.md)
 
 ---
 
