@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Banco de dados PostgreSQL
   postgres:
     image: postgres:17
     container_name: multiplayer-soccer-db
@@ -38,7 +37,14 @@ services:
   app:
     image: multiplayer-soccer-app:latest
     container_name: multiplayer-soccer-app
+    # AJUSTE 2: Permitir que o Node abra milhares de sockets
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     environment:
+      DB_POOL_SIZE: 200     # Aumentamos o pool do Node
+      DB_CONN_TIMEOUT: 10000 # Timeout de conexão com o banco
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-football_db}
@@ -59,10 +65,18 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: multiplayer-soccer-nginx:latest
+    image: nginx:stable-alpine # Use a imagem oficial, não precisa do Dockerfile customizado agora
     container_name: multiplayer-soccer-nginx
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     ports:
       - "80:80"
+    volumes:
+      # AQUI ESTÁ A MÁGICA:
+      # Substituímos a configuração global inteira pelo nosso arquivo
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - app
     restart: unless-stopped

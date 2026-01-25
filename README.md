@@ -26,6 +26,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
     - [1. Imagem do app Node](#1-imagem-do-app-node)
     - [2. Docker Compose (app + Nginx)](#2-docker-compose-app--nginx)
   - [Deploy em Produção (AWS EC2 + Nginx)](#deploy-em-produção-aws-ec2--nginx)
+  - [Testes de Carga e Escalabilidade](#testes-de-carga-e-escalabilidade)
   - [Variáveis de Ambiente](#variáveis-de-ambiente)
   - [Roteiro de Desenvolvimento Futuro](#roteiro-de-desenvolvimento-futuro)
   - [Licença](#licença)
@@ -559,6 +560,20 @@ Fluxo típico:
 - Configuração de **Security Groups** (liberando portas 80/3000).
 - Boas práticas de não enviar o projeto inteiro para a EC2 sem necessidade.
 - Rotinas de start/stop, logs e troubleshooting.
+
+### Testes de Carga e Escalabilidade
+
+Para aprender como ajustar a potência dos testes e escalar sua instância EC2 de acordo com a demanda, consulte:
+
+📖 **[Guia de Testes de Carga e Escalabilidade AWS EC2](docs/LOAD_TESTING_E_ESCALABILIDADE_EC2.md)**
+
+Este guia completo explica:
+- Como ajustar parâmetros do Artillery (duration, arrivalRate, rampTo)
+- Cenários de teste recomendados (leve, médio, intenso, estresse)
+- Tipos de instância EC2 e suas capacidades
+- Como aumentar ou diminuir recursos da EC2
+- Monitoramento de performance e quando escalar
+- Melhores práticas e troubleshooting
 
 ---
 
