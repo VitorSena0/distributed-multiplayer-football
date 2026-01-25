@@ -1,4 +1,4 @@
-# ⚽ Distributed Multiplayer Football
+# Distributed Multiplayer Football
 
 Jogo de futebol **multiplayer 2D em tempo real** construído com arquitetura distribuída utilizando **Node.js**, **Express**, **Socket.IO**, **PostgreSQL**, **Redis** e **TypeScript**.
 
@@ -6,7 +6,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 
 ---
 
-## 🎓 Informações Acadêmicas
+## Informações Acadêmicas
 
 **Disciplina:** Sistemas Distribuídos  
 **Instituição:** Universidade Federal de Sergipe (UFS)  
@@ -19,7 +19,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 
 ---
 
-## 📋 Índice
+## Índice
 
 - [Visão Geral](#visão-geral)
 - [Arquitetura Distribuída](#arquitetura-distribuída)
@@ -38,26 +38,26 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 
 ---
 
-## 🎮 Visão Geral
+## Visão Geral
 
 O Distributed Multiplayer Football é um jogo de futebol top‑down onde múltiplos jogadores controlam seus avatares em **tempo real** pela web, demonstrando conceitos fundamentais de **sistemas distribuídos**.
 
 ### Funcionalidades Principais
 
-- ✅ **Multiplayer em tempo real** via WebSockets (Socket.IO)
-- ✅ **Servidor autoritativo** - O servidor mantém o estado oficial do jogo
-- ✅ **Gestão de múltiplas salas** independentes
-- ✅ **Balanceamento automático** de times (vermelho e azul)
-- ✅ **Sistema de autenticação** com JWT e bcrypt
-- ✅ **Ranking global** com cache Redis
-- ✅ **Persistência de estatísticas** em PostgreSQL
-- ✅ **Containerização** completa com Docker
+- **Multiplayer em tempo real** via WebSockets (Socket.IO)
+- **Servidor autoritativo** - O servidor mantém o estado oficial do jogo
+- **Gestão de múltiplas salas** independentes
+- **Balanceamento automático** de times (vermelho e azul)
+- **Sistema de autenticação** com JWT e bcrypt
+- **Ranking global** com cache Redis
+- **Persistência de estatísticas** em PostgreSQL
+- **Containerização** completa com Docker
 
 <img width="1911" height="767" alt="Tela do jogo" src="https://github.com/user-attachments/assets/9e0962bc-fe47-4865-a3ff-edb069c746cc" />
 
 ---
 
-## 🏗️ Arquitetura Distribuída
+## Arquitetura Distribuída
 
 ### Padrão Cliente-Servidor com Microsserviços
 
@@ -110,7 +110,7 @@ O sistema roda em um cluster de **4 contêineres** orquestrados via Docker Compo
 
 ---
 
-## 📡 Comunicação em Rede
+## Comunicação em Rede
 
 ### Protocolos Utilizados
 
@@ -154,7 +154,7 @@ setInterval(() => {
 
 ---
 
-## 🔄 Consistência de Dados
+## Consistência de Dados
 
 ### Modelo de Consistência: Servidor Autoritativo
 
@@ -192,7 +192,7 @@ O servidor mantém o **estado oficial** do jogo, garantindo:
 
 ---
 
-## 🔐 Gerenciamento de Sessões
+## Gerenciamento de Sessões
 
 ### Autenticação de Jogadores
 
@@ -220,16 +220,16 @@ function allocateRoom(requestedRoomId?: string): RoomAllocation {
 
 ### Segurança de Sessão
 
-- ✅ **Sessão única**: Um usuário por vez por conta
-- ✅ **JWT com expiração**: 30 dias
-- ✅ **Senhas hasheadas**: bcrypt com 10 salt rounds
-- ✅ **Proteção CORS**: Validação de origem
+- **Sessão única**: Um usuário por vez por conta
+- **JWT com expiração**: 30 dias
+- **Senhas hasheadas**: bcrypt com 10 salt rounds
+- **Proteção CORS**: Validação de origem
 
 <img width="1507" height="800" alt="Tela de autenticação" src="https://github.com/user-attachments/assets/98adaf7f-81ca-417b-9534-c5cb53fa5d67" />
 
 ---
 
-## 🛡️ Tolerância a Falhas
+## Tolerância a Falhas
 
 ### Tratamento de Desconexões
 
@@ -272,7 +272,7 @@ services:
 
 ---
 
-## 📈 Escalabilidade
+## Escalabilidade
 
 ### Suporte a Múltiplos Jogadores
 
@@ -331,7 +331,7 @@ Para múltiplas instâncias do servidor:
 
 ---
 
-## 💾 Persistência de Dados
+## Persistência de Dados
 
 ### Banco de Dados Distribuído
 
@@ -385,7 +385,7 @@ ZREVRANGE global_ranking 0 9 WITHSCORES
 
 ---
 
-## 🎨 Interface do Usuário
+## Interface do Usuário
 
 ### Renderização em Tempo Real
 
@@ -409,7 +409,7 @@ ZREVRANGE global_ranking 0 9 WITHSCORES
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 ### Backend
 | Tecnologia | Versão | Uso |
@@ -439,7 +439,7 @@ ZREVRANGE global_ranking 0 9 WITHSCORES
 
 ---
 
-## 🚀 Instalação e Execução
+## Instalação e Execução
 
 ### Pré-requisitos
 
@@ -489,7 +489,7 @@ npm run dev
 
 ---
 
-## 🐳 Docker e Containers
+## Docker e Containers
 
 ### docker-compose.yml
 
@@ -550,7 +550,7 @@ docker-compose restart
 
 ---
 
-## 📚 Documentação Adicional
+## Documentação Adicional
 
 | Documento | Descrição |
 |-----------|-----------|
@@ -563,13 +563,13 @@ docker-compose restart
 
 ---
 
-## 📄 Licença
+## Licença
 
 Este projeto está licenciado sob a licença **ISC**.
 
 ---
 
-## 👥 Contribuidores
+## Contribuidores
 
 - **Vitor Leonardo** - [VitorSena0](https://github.com/VitorSena0)
 - **Nicolas Matheus**
