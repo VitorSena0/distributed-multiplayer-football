@@ -1,38 +1,23 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:17
     container_name: multiplayer-soccer-db
+    # AJUSTE 1: Aumentar conexões máximas do Postgres para aguentar o teste
+    command: postgres -c 'max_connections=1000' 
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_USER: ${DB_USER:-postgres} 
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: ${DB_NAME:-football_db}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    volumes: # Persistência e inicialização do schema
+      - postgres_data:/var/lib/postgresql/data # Persistência dos dados
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql # Inicializa o schema
     ports:
-      - "127.0.0.1:5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-football_db}"]
+      - "127.0.0.1:5433:5432" # Mapeia para localhost na porta 5433
+    healthcheck: # Verifica se o Postgres está pronto para conexões
+      test: ["CMD-SHELL", "pg_isready -U postgres"] # Usa o usuário postgres
       interval: 5s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
-
-  redis:
-    image: redis:7
-    container_name: multiplayer-soccer-redis
-    ports:
-      - "127.0.0.1:6379:6379" # opcional: mapeia para host local apenas
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
 
   app:
     image: multiplayer-soccer-app:latest
@@ -50,19 +35,15 @@ services:
       DB_NAME: ${DB_NAME:-football_db}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      REDIS_HOST: redis
-      REDIS_PORT: ${REDIS_PORT:-6379}
-      JWT_SECRET: ${JWT_SECRET:-''}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET deve ser definido no arquivo .env}
       PORT: 3000
-    # For local development you might want:
-    # volumes:
-    #   - ./:/usr/src/app
+      # Dica: Configure o Pool do seu ORM (TypeORM/Prisma) para não estourar o banco
+      # DB_POOL_SIZE: 50 
     expose:
       - "3000"
     depends_on:
-      - postgres
-      - redis
-    restart: unless-stopped
+      postgres:
+        condition: service_healthy
 
   nginx:
     image: nginx:stable-alpine # Use a imagem oficial, não precisa do Dockerfile customizado agora
@@ -79,8 +60,6 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - app
-    restart: unless-stopped
 
 volumes:
   postgres_data:
-  redis_data:
