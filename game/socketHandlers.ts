@@ -109,10 +109,15 @@ export function registerSocketHandlers(io: SocketIOServer): void {
         // Verifica se já existem condições para iniciar/reiniciar a partida
         checkRestartConditions(room, io);
 
-        // Envia pings regulares para medir a latência do cliente
+        // Envia pings regulares para medir a latência do cliente usando RTT
         const pingInterval = setInterval(() => {
-            socket.emit('ping', Date.now());
+            socket.emit('pingRequest');
         }, 1000);
+
+        // Cliente responde ao ping com pong
+        socket.on('pong', () => {
+            socket.emit('pongResponse');
+        });
 
         // Cliente solicita para reiniciar a partida após o término do jogo
         socket.on('requestRestart', () => {
