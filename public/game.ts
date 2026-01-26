@@ -147,6 +147,7 @@ interface State {
   roomPlayerCount: number;
   requestedRoomId: string | null;
   ping: number | null;
+  pingStartTime: number | null; // Timestamp quando enviamos o ping
   inputs: PlayerInput;
   gameState: GameState;
   isMobile: boolean;
@@ -162,6 +163,7 @@ const state: State = {
   roomPlayerCount: 0,
   requestedRoomId: null,
   ping: null, // Latência em ms
+  pingStartTime: null, // Timestamp quando enviamos o ping
   inputs: { left: false, right: false, up: false, down: false, action: false },
   gameState: {
     players: {},
@@ -618,14 +620,23 @@ Object.entries(socketHandlers).forEach(([event, handler]) => {
   socket.on(event, handler);
 });
 
-// Medição de ping
-// - O servidor envia o timestamp atual
-// - Calculamos a diferença para obter a latência aproximada
-socket.on('ping', (serverTimestamp: number) => {
-  const now = Date.now();
-  const latencia = now - serverTimestamp;
-  state.ping = latencia;
-  atualizarDisplayPing();
+// Medição de ping usando RTT (Round-Trip Time)
+// - Cliente envia ping request com timestamp
+// - Servidor responde imediatamente com pong
+// - Cliente calcula latência como (tempo_atual - tempo_enviado) / 2
+socket.on('pingRequest', () => {
+  state.pingStartTime = Date.now();
+  socket.emit('pong');
+});
+
+socket.on('pongResponse', () => {
+  if (state.pingStartTime !== null) {
+    const now = Date.now();
+    const rtt = now - state.pingStartTime; // Round-Trip Time
+    state.ping = Math.round(rtt / 2); // Latência é metade do RTT
+    state.pingStartTime = null;
+    atualizarDisplayPing();
+  }
 });
 
 // ===============================
