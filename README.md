@@ -35,6 +35,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Instalação e Execução](#instalação-e-execução)
 - [Docker e Containers](#docker-e-containers)
+- [Testes de Carga](#testes-de-carga-load-testing)
 - [Documentação Adicional](#documentação-adicional)
 - [Licença](#licença)
 
@@ -548,6 +549,66 @@ docker-compose exec postgres psql -U postgres -d football_db
 
 # Reiniciar serviços
 docker-compose restart
+```
+
+---
+
+## Testes de Carga (Load Testing) - Branch: [artillery-load-test](https://github.com/rafael-dcomp/projeto-sempre-destruidos/tree/copilot/add-artillery-load-testing)
+
+
+O projeto inclui testes de carga completos usando **Artillery** para validar a performance e capacidade do sistema sob diferentes condições.
+
+### Arquivos de Teste Disponíveis
+
+| Arquivo | Descrição | Carga | Duração |
+|---------|-----------|-------|---------|
+| `http-light-load.yml` | Carga leve | 10-20 usuários/seg | ~2 min |
+| `http-medium-load.yml` | Carga média | 20-50 usuários/seg | ~4 min |
+| `http-heavy-load.yml` | Carga pesada | 30-150 usuários/seg | ~3.5 min |
+| `stress-test.yml` | Teste de estresse | 50-300 usuários/seg | ~3 min |
+| `websocket-test.yml` | Teste WebSocket | 2-5 conexões/seg | ~3 min |
+
+### Executar Testes de Carga
+
+```bash
+# Certifique-se de que o servidor está rodando
+docker-compose up -d
+
+# Testes HTTP
+npm run load-test:light      # Carga leve
+npm run load-test:medium     # Carga média
+npm run load-test:heavy      # Carga pesada
+npm run load-test:stress     # Teste de estresse
+
+# Teste WebSocket
+npm run load-test:websocket
+
+# Executar todos os testes HTTP
+npm run load-test:all
+```
+
+### Gerar Relatórios HTML
+
+```bash
+# Executar teste e gerar relatório
+npx artillery run --output report.json load-tests/http-medium-load.yml
+npx artillery report report.json
+
+# Abrir relatório no navegador
+open report.json.html
+```
+
+### Parâmetros Principais
+
+Os testes podem ser customizados editando os arquivos `.yml` em `load-tests/`:
+
+```yaml
+config:
+  target: 'http://localhost'  # Servidor a testar
+  phases:
+    - duration: 60        # Duração em segundos
+      arrivalRate: 20     # Usuários virtuais por segundo
+      rampTo: 50          # Aumentar até este valor (opcional)
 ```
 
 ---
