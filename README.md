@@ -2,7 +2,7 @@
 
 ## Documentação Técnica
 
-Jogo de futebol **multiplayer 2D em tempo real** construído com arquitetura distribuída utilizando **Node.js**, **Express**, **Socket.IO**, **PostgreSQL**, **Redis** e **TypeScript**.
+Jogo de futebol **multiplayer 2D em tempo real** construído com arquitetura distribuída utilizando **AWS** **Node.js**, **Express**, **Socket.IO**, **PostgreSQL**, **Redis**, **TypeScript**.
 
 O servidor simula a física básica do jogo (movimentação, colisão jogador x bola, cantos, gols) e transmite o estado oficial para todos os clientes conectados, garantindo sincronização em tempo real através de WebSockets.
 
@@ -30,6 +30,7 @@ O servidor simula a física básica do jogo (movimentação, colisão jogador x 
 - [Gerenciamento de Sessões](#gerenciamento-de-sessões)
 - [Tolerância a Falhas](#tolerância-a-falhas)
 - [Escalabilidade](#escalabilidade)
+- [Infraestrutura em Produção (AWS)](#infraestrutura-em-produção-aws)
 - [Persistência de Dados](#persistência-de-dados)
 - [Interface do Usuário](#interface-do-usuário)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
@@ -283,54 +284,113 @@ services:
 - **Salas ilimitadas** criadas sob demanda
 - **Isolamento**: Cada sala tem seu próprio estado
 
-### Arquitetura Atual (Single Server)
+### Arquitetura Atual (Escalável em Produção)
+
+A arquitetura de produção implementa escalabilidade horizontal com múltiplas instâncias de servidores distribuídas geograficamente:
 
 ```
+┌─────────────┐
+│   Cliente   │
+│  (Browser)  │
+└──────┬──────┘
+       │ HTTP/HTTPS :80
+       ▼
 ┌──────────────────┐
-│   Nginx          │ :80
-└────────┬─────────┘
-         │
-┌────────▼─────────┐
-│   Node.js        │ :3000
-│   ├── REST API   │
-│   └── Socket.IO  │
-└────────┬─────────┘
-         │
-    ┌────┴────┐
-    │         │
-┌───▼──┐  ┌──▼────┐
-│ PG   │  │ Redis │
-└──────┘  └───────┘
+│    AWS ALB       │ Camada 7
+│  (Load Balancer) │
+└──────┬───────────┘
+       │ :80 (Sticky Sessions com Cookie)
+       ├──────────────────┬──────────────────┐
+       ▼                  ▼                  ▼
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+  │   EC2 - AZ1  │  │   EC2 - AZ2  │  │   EC2 - AZ3  │
+  ├──────────────┤  ├──────────────┤  ├──────────────┤
+  │ Nginx :80    │  │ Nginx :80    │  │ Nginx :80    │
+  │ ──────────>  │  │ ──────────>  │  │ ──────────>  │
+  │ Node.js :3000│  │ Node.js :3000│  │ Node.js :3000│
+  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘
+         │                 │                 │
+         └─────────────────┼─────────────────┘
+                           │
+         ┌─────────────────┴─────────────────┐
+         │                                   │
+    ┌────▼──────┐                  ┌────────▼─────┐
+    │ PostgreSQL│                  │ Redis Cluster│
+    │   (RDS)   │                  │(ElastiCache) │
+    └───────────┘                  └──────────────┘
 ```
 
-### Escalabilidade Horizontal (Futuro)
+### Características de Escalabilidade
 
-Para múltiplas instâncias do servidor:
+- **Load Balancer (ALB):** Distribui requisições entre múltiplas instâncias EC2
+- **Sticky Sessions:** Mantém afinidade WebSocket com cookie gerado pelo ALB
+- **Multi-AZ:** Instâncias distribuídas em zonas de disponibilidade diferentes
+- **Health Checks:** Remoção automática de instâncias não saudáveis
+- **RDS & ElastiCache:** Serviços gerenciados para BD e cache escaláveis
 
-```
-                ┌──────────┐
-                │  Nginx   │ (Load Balancer)
-                └────┬─────┘
-                     │
-         ┌───────────┼───────────┐
-         │           │           │
-    ┌────▼───┐  ┌───▼────┐  ┌───▼────┐
-    │ Node 1 │  │ Node 2 │  │ Node 3 │
-    └────┬───┘  └───┬────┘  └───┬────┘
-         │          │           │
-         └──────────┼───────────┘
-                    │
-            ┌───────┴────────┐
-            │                │
-        ┌───▼──┐      ┌─────▼─────┐
-        │  PG  │      │   Redis   │
-        └──────┘      │ (Adapter) │
-                      └───────────┘
-```
+---
 
-1. **Redis Adapter** - Sincronizar eventos Socket.IO entre servidores
-2. **Load Balancer** - Sticky sessions para WebSocket
-3. **Separate Workers** - Game loops em processos separados
+## Infraestrutura em Produção (AWS)
+
+**Ambiente:** Amazon Web Services (AWS)  
+**Arquitetura:** Camada 7 (Application Load Balancer) com Proxy Reverso
+
+---
+
+### 1. Visão Geral e Objetivos
+
+O objetivo desta implementação foi migrar a aplicação de um ambiente de desenvolvimento local para uma arquitetura de nuvem escalável e resiliente. O sistema foi projetado para suportar conexões persistentes em tempo real (WebSockets), garantindo que a queda de um servidor não interrompa a disponibilidade total do serviço, distribuindo a carga de jogadores de maneira eficiente.
+
+### 2. Topologia da Arquitetura
+
+O fluxo de dados segue uma abordagem de "Funil Seguro", onde nenhum acesso direto aos servidores de aplicação é permitido.
+
+> **Fluxo de Requisição:**  
+> Cliente (Browser) ➔ AWS ALB (Porta 80) ➔ Instâncias EC2 (Porta 80) ➔ Nginx ➔ Node.js (Porta 3000)
+
+---
+
+### 3. Detalhamento dos Componentes Implementados
+
+#### 3.1. Gerenciamento de Tráfego (AWS Application Load Balancer)
+
+O ponto central da infraestrutura é um Application Load Balancer (ALB) Internet-facing.
+
+* **Roteamento Inteligente:** O ALB opera na Camada 7 do modelo OSI, recebendo todo o tráfego HTTP/HTTPS externo e distribuindo entre as instâncias registradas no Target Group.
+* **Persistência de Conexão (Sticky Sessions):**
+    * **Desafio:** O protocolo Socket.io requer múltiplos passos de handshake (negociação) para estabelecer a conexão. Em um ambiente balanceado, se o passo 1 for para o Servidor A e o passo 2 para o Servidor B, a conexão falha.
+    * **Solução Implementada:** Foi ativada a **Afinidade de Sessão** baseada em Cookies de Aplicação (Load Balancer Generated Cookie).
+    * **Funcionamento:** O ALB injeta um cookie no navegador do jogador na primeira requisição. Todas as requisições subsequentes desse jogador são roteadas obrigatoriamente para a mesma instância EC2, garantindo a estabilidade da partida e das salas de jogo.
+
+#### 3.2. Proxy Reverso e Camada Web (Nginx)
+
+Para não expor o servidor de aplicação (Node.js) diretamente e para gerenciar melhor os cabeçalhos HTTP, utilizou-se o servidor web Nginx.
+
+* **Tratamento de Protocolo WebSocket:** O Nginx foi configurado para permitir o "Upgrade" de cabeçalhos, essencial para transformar uma conexão HTTP padrão em uma conexão WebSocket persistente.
+
+#### 3.3. Computação e Redundância (EC2 & AMIs)
+
+A infraestrutura não depende de um único servidor (Single Point of Failure).
+
+* **Padronização:** Foi criada uma **AMI (Amazon Machine Image)** a partir do servidor base configurado e validado.
+* **Redundância:** Múltiplas instâncias foram provisionadas a partir desta imagem mestre.
+* **Alta Disponibilidade (Multi-AZ):** As instâncias foram distribuídas em diferentes **Zonas de Disponibilidade** (ex: sa-east-1a e sa-east-1b). Isso protege a aplicação contra falhas físicas em um data center específico da AWS.
+
+#### 3.4. Monitoramento de Integridade (Health Checks)
+
+Foi implementado um sistema de "autocura" passiva:
+
+* **Mecanismo:** O Load Balancer envia requisições GET / a cada 30 segundos para todas as instâncias.
+* **Critério de Falha:** Se uma instância demorar a responder ou retornar códigos de erro (ex: 500, 502), ela é marcada como Unhealthy.
+* **Ação Automática:** O ALB remove imediatamente essa instância do roteamento, impedindo que jogadores sejam direcionados para um servidor travado.
+
+#### 3.5. Segurança de Rede (Security Groups)
+
+Foi adotada a estratégia de **Defesa em Profundidade**, restringindo o tráfego em camadas:
+
+1. **Nível do Balanceador:** Aceita tráfego HTTP (80) de 0.0.0.0/0 (Internet).
+2. **Nível da Instância:** O firewall da instância foi configurado para aceitar tráfego na porta 80 **apenas se a origem for o Security Group do Balanceador**.
+3. **Bloqueio Externo:** A porta 3000 (Node.js) está bloqueada para acesso público, prevenindo ataques diretos à aplicação.
 
 ---
 
