@@ -338,11 +338,11 @@ A arquitetura de produção implementa escalabilidade horizontal com múltiplas 
 
 ---
 
-### 1. Visão Geral e Objetivos
+### Visão Geral e Objetivos
 
 O objetivo desta implementação foi migrar a aplicação de um ambiente de desenvolvimento local para uma arquitetura de nuvem escalável e resiliente. O sistema foi projetado para suportar conexões persistentes em tempo real (WebSockets), garantindo que a queda de um servidor não interrompa a disponibilidade total do serviço, distribuindo a carga de jogadores de maneira eficiente.
 
-### 2. Topologia da Arquitetura
+### Topologia da Arquitetura
 
 O fluxo de dados segue uma abordagem de "Funil Seguro", onde nenhum acesso direto aos servidores de aplicação é permitido.
 
@@ -351,9 +351,9 @@ O fluxo de dados segue uma abordagem de "Funil Seguro", onde nenhum acesso diret
 
 ---
 
-### 3. Detalhamento dos Componentes Implementados
+### Detalhamento dos Componentes Implementados
 
-#### 3.1. Gerenciamento de Tráfego (AWS Application Load Balancer)
+#### Gerenciamento de Tráfego (AWS Application Load Balancer)
 
 O ponto central da infraestrutura é um Application Load Balancer (ALB) Internet-facing.
 
@@ -363,13 +363,13 @@ O ponto central da infraestrutura é um Application Load Balancer (ALB) Internet
     * **Solução Implementada:** Foi ativada a **Afinidade de Sessão** baseada em Cookies de Aplicação (Load Balancer Generated Cookie).
     * **Funcionamento:** O ALB injeta um cookie no navegador do jogador na primeira requisição. Todas as requisições subsequentes desse jogador são roteadas obrigatoriamente para a mesma instância EC2, garantindo a estabilidade da partida e das salas de jogo.
 
-#### 3.2. Proxy Reverso e Camada Web (Nginx)
+#### Proxy Reverso e Camada Web (Nginx)
 
 Para não expor o servidor de aplicação (Node.js) diretamente e para gerenciar melhor os cabeçalhos HTTP, utilizou-se o servidor web Nginx.
 
 * **Tratamento de Protocolo WebSocket:** O Nginx foi configurado para permitir o "Upgrade" de cabeçalhos, essencial para transformar uma conexão HTTP padrão em uma conexão WebSocket persistente.
 
-#### 3.3. Computação e Redundância (EC2 & AMIs)
+#### Computação e Redundância (EC2 & AMIs)
 
 A infraestrutura não depende de um único servidor (Single Point of Failure).
 
@@ -377,7 +377,7 @@ A infraestrutura não depende de um único servidor (Single Point of Failure).
 * **Redundância:** Múltiplas instâncias foram provisionadas a partir desta imagem mestre.
 * **Alta Disponibilidade (Multi-AZ):** As instâncias foram distribuídas em diferentes **Zonas de Disponibilidade** (ex: sa-east-1a e sa-east-1b). Isso protege a aplicação contra falhas físicas em um data center específico da AWS.
 
-#### 3.4. Monitoramento de Integridade (Health Checks)
+#### Monitoramento de Integridade (Health Checks)
 
 Foi implementado um sistema de "autocura" passiva:
 
@@ -385,7 +385,7 @@ Foi implementado um sistema de "autocura" passiva:
 * **Critério de Falha:** Se uma instância demorar a responder ou retornar códigos de erro (ex: 500, 502), ela é marcada como Unhealthy.
 * **Ação Automática:** O ALB remove imediatamente essa instância do roteamento, impedindo que jogadores sejam direcionados para um servidor travado.
 
-#### 3.5. Segurança de Rede (Security Groups)
+#### Segurança de Rede (Security Groups)
 
 Foi adotada a estratégia de **Defesa em Profundidade**, restringindo o tráfego em camadas:
 
