@@ -1,4 +1,5 @@
 import express from 'express'; // Freamework web servir arquivos estáticos e gerenciar rotas
+import cookieParser from 'cookie-parser';
 import { Server as SocketIOServer } from 'socket.io'; // Biblioteca para comunicação em tempo real via WebSockets
 import http from 'http'; // Módulo nativo do Node.js para criar servidores HTTP
 import 'dotenv/config'; // Carrega variáveis de ambiente a partir do arquivo .env
@@ -14,6 +15,7 @@ const app = express(); // Cria uma aplicação Express, na qual a variável app 
 // Middleware para processar JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());   // Middleware para processar cookies
 
 const server = http.createServer(app); // Cria um servidor HTTP usando a aplicação Express
 const io = new SocketIOServer(server, { // Cria uma instância do Socket.IO vinculada ao servidor HTTP
