@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'; // Importa o roteador do Express e os tipos Request e Response
 import { AuthService } from '../services/authService'; // Importa o serviço de autenticação
-
+import { authenticateToken } from '../services/authMiddleware'; 
 // Cria um roteador Express para gerenciar as rotas de autenticação
 const router = Router();
 
@@ -33,6 +33,12 @@ router.post('/register', async (req: Request, res: Response) => {
         const result = await AuthService.register(username, password);
         
         if (result.success) {
+            res.cookie('token', result.token, {
+            httpOnly: true,     // JavaScript não pode acessar
+            sameSite: 'strict', // Proteção contra CSRF
+            maxAge: 30 * 24 * 60 * 60 * 1000  // 30 dias
+            });
+            delete result.token; // Remove o token do corpo da resposta, pois já está no cookie
             return res.status(201).json(result);
         } else {
             return res.status(400).json(result);
@@ -61,6 +67,12 @@ router.post('/login', async (req: Request, res: Response) => {
         const result = await AuthService.login(username, password);
         
         if (result.success) {
+            res.cookie('token', result.token, {
+            httpOnly: true,     // JavaScript não pode acessar
+            sameSite: 'strict', // Proteção contra CSRF
+            maxAge: 30 * 24 * 60 * 60 * 1000  // 30 dias
+            });
+            delete result.token; // Remove o token do corpo da resposta, pois já está no cookie
             return res.status(200).json(result);
         } else {
             return res.status(401).json(result);
@@ -75,31 +87,12 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 // Rota para verificar token
-router.post('/verify', (req: Request, res: Response) => {
+router.post('/verify', authenticateToken, (req: Request, res: Response) => {
     try {
-        const { token } = req.body;
-
-        if (!token) {
-            return res.status(400).json({
-                success: false,
-                message: 'Token não fornecido'
-            });
-        }
-
-        const result = AuthService.verifyToken(token);
-        
-        if (result.valid) {
-            return res.status(200).json({
-                success: true,
-                userId: result.userId,
-                username: result.username
-            });
-        } else {
-            return res.status(401).json({
-                success: false,
-                message: 'Token inválido ou expirado'
-            });
-        }
+        return res.status(200).json({
+        success: true,
+        user: req.user
+    });
     } catch (error) {
         console.error('Erro na rota de verificação:', error);
         return res.status(500).json({
