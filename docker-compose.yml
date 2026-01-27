@@ -36,6 +36,7 @@ services:
     restart: unless-stopped
 
   app:
+    build: .
     image: multiplayer-soccer-app:latest
     container_name: multiplayer-soccer-app
     environment:
@@ -59,6 +60,7 @@ services:
     restart: unless-stopped
 
   nginx:
+    build: ./nginx
     image: multiplayer-soccer-nginx:latest
     container_name: multiplayer-soccer-nginx
     ports:
