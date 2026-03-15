@@ -35,7 +35,10 @@ services:
     restart: unless-stopped
 
   app:
-    image: multiplayer-soccer-app:v7
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: multiplayer-soccer-app:latest
     container_name: multiplayer-soccer-app
     environment:
       DB_HOST: postgres
@@ -58,6 +61,9 @@ services:
     restart: unless-stopped
 
   nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     image: multiplayer-soccer-nginx:latest
     container_name: multiplayer-soccer-nginx
     ports:
